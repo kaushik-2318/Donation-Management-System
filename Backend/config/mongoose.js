@@ -1,15 +1,35 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const mongoUrl = `${process.env.MONGO_ATLAS_URL}/donation_management`;
+// ✅ Construct MongoDB URI
+const mongoUrl =
+  process.env.MONGO_ATLAS_URL;
 
+// ✅ MongoDB Connection Options
 const options = {
-  tls: true, // Enable TLS for both environments
-  tlsAllowInvalidCertificates: process.env.NODE_ENV !== 'production', // Allow invalid certificates in development for testing (e.g., self-signed certs)
+  tls: true, // Ensure TLS encryption for secure connections
+  tlsAllowInvalidCertificates: process.env.NODE_ENV !== "production", // Allow invalid certs only in development
 };
 
-mongoose.connect(mongoUrl, options)
-  .then(() => console.log("✅ Database connected successfully!"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+// ✅ Connect to MongoDB
+const connectDB = async () => {
+  try {
+    await mongoose.connect(mongoUrl, options);
+    console.log("✅ Database connected successfully!");
+  } catch (error) {
+    console.error("❌ MongoDB connection error:", error);
+    process.exit(1); // Exit process with failure
+  }
+};
 
-const db = mongoose.connection;
-module.exports = db;
+// ✅ Handle connection errors after initial connection
+mongoose.connection.on("error", (err) => {
+  console.error("❌ MongoDB Error:", err);
+});
+
+// ✅ Reconnect on disconnection
+mongoose.connection.on("disconnected", () => {
+  console.warn("⚠️ MongoDB disconnected. Attempting to reconnect...");
+  connectDB();
+});
+
+module.exports = connectDB;
