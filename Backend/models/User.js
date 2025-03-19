@@ -20,9 +20,7 @@ const userSchema = new mongoose.Schema(
     phone_number: {
       type: String,
       trim: true,
-      unique: function () {
-        return this.role === "receiver";
-      }, // Only required for receivers
+      unique:false,
       match: /^\+?[1-9]\d{1,3}\d{10}$/, // Ensures valid phone number format
     },
     isVerified: { type: Boolean, default: false }, // For NGO verification / receiver verification

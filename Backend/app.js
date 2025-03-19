@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const mongooseconnection = require("./config/mongoose"); // Ensure this correctly connects to MongoDB
 const cookieParser = require("cookie-parser");
-const errorHandler = require("./middlewares/error");
+const errorHandler = require("./middlewares/errorMiddleware");
 
 const app = express();
 
@@ -26,8 +26,8 @@ mongooseconnection();
 
 // ✅ Route Mounting
 app.use("/api/auth", require("./routes/authRoutes"));
-// app.use("/api/users", require("./routes/userRoutes"));
-// app.use("/api/posts", require("./routes/postRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/posts", require("./routes/postRoutes"));
 // app.use("/api/donations", require("./routes/donationRoutes"));
 // app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
 // app.use("/api/notifications", require("./routes/notificationRoutes"));
