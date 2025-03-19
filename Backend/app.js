@@ -26,7 +26,7 @@ mongooseconnection();
 
 // ✅ Route Mounting
 app.use("/api/auth", require("./routes/authRoutes"));
-// app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/posts", require("./routes/postRoutes"));
 // app.use("/api/donations", require("./routes/donationRoutes"));
 // app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
