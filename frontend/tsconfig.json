@@ -1,8 +1,39 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+      "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
-  }
+    },
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+, "app/leaderboard/page.js", "app/posts/loading.js", "app/posts/page.js", "app/posts/create/page.js", "app/privacy/page.js", "app/profile/ngo/page.js", "app/profile/donor/page.js", "components/file-upload.js", "app/auth/login/page.js", "app/auth/register/page.js", "components/dashboard/donation-chart.js", "components/theme-provider.js", "app/donation/donate/loading.js", "app/donation/donate/page.js", "app/cookies/page.js"  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
