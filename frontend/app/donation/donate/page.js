@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { ArrowLeft, CreditCard, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { api } from "@/lib/api"
@@ -27,7 +27,6 @@ export default function DonatePage() {
   const dispatch = useAppDispatch()
   const { user, isAuthenticated } = useAppSelector(selectAuth)
   const posts = useAppSelector(selectPosts)
-  const { toast } = useToast()
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -82,7 +81,7 @@ export default function DonatePage() {
     } else {
       router.push("/posts")
     }
-  }, [campaignId, isAuthenticated, posts, router, toast])
+  }, [campaignId, isAuthenticated, posts, router])
 
   const handleCardDetailsChange = (e) => {
     const { name, value } = e.target

@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { FileUpload } from "@/components/file-upload"
 import { api, User, Donation } from "@/lib/api"
 import { Edit, Save, MapPin, Phone, Mail, Download, FileText, Award } from "lucide-react"
@@ -22,7 +22,6 @@ import { Edit, Save, MapPin, Phone, Mail, Download, FileText, Award } from "luci
 export default function DonorProfilePage() {
   const router = useRouter()
   const { user, isAuthenticated } = useAppSelector(selectAuth)
-  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [donorProfile, setDonorProfile] = useState < User | null > (null)

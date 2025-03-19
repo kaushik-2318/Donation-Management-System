@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -20,7 +20,6 @@ export default function CreatePostPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { user, isAuthenticated } = useAppSelector(selectAuth)
-  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
@@ -35,12 +34,12 @@ export default function CreatePostPage() {
     return null
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
 
@@ -67,14 +66,14 @@ export default function CreatePostPage() {
         raised: 0,
         creatorId: user?.id || "",
         creatorName: user?.name || "",
-        creatorType: user?.role as "NGO" | "RECEIVER",
+        creatorType: user?.role,
         proofLink: formData.proofLink || undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         status: "active",
       }
 
-      dispatch(addPost(newPost as any))
+      dispatch(addPost(newPos))
 
       toast({
         title: "Campaign created successfully",
@@ -82,7 +81,7 @@ export default function CreatePostPage() {
       })
 
       router.push("/posts")
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error creating campaign",

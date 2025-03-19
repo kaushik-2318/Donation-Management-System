@@ -19,7 +19,7 @@ export default function DonorDashboard() {
   const { user, isAuthenticated } = useAppSelector(selectAuth)
   const donations = useAppSelector(selectDonations)
   const [totalDonated, setTotalDonated] = useState(0)
-  const [badges, setBadges] = useState<string[]>([])
+  const [badges, setBadges] = useState([])
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -66,7 +66,7 @@ export default function DonorDashboard() {
       },
     ]
 
-    dispatch(setDonations(mockDonations as any))
+    dispatch(setDonations(mockDonations))
 
     // Calculate total donated
     const total = mockDonations.reduce((sum, donation) => sum + donation.amount, 0)
@@ -162,7 +162,7 @@ export default function DonorDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {donations.slice(0, 3).map((donation: any) => (
+                  {donations.slice(0, 3).map((donation) => (
                     <div key={donation.id} className="flex items-center">
                       <div className="space-y-1">
                         <p className="text-sm font-medium leading-none">{donation.campaignName}</p>
@@ -215,7 +215,7 @@ export default function DonorDashboard() {
                   <div className="flex items-center">
                     <div className="space-y-1">
                       <p className="text-sm font-medium leading-none">Women Empowerment Initiative</p>
-                      <p className="text-sm text-muted-foreground">By Women's Rights Foundation</p>
+                      <p className="text-sm text-muted-foreground">By Women&apos;s Rights Foundation</p>
                     </div>
                     <div className="ml-auto">
                       <Button size="sm">Donate</Button>
@@ -241,7 +241,7 @@ export default function DonorDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {donations.map((donation: any) => (
+                {donations.map((donation) => (
                   <div key={donation.id} className="flex items-center">
                     <div className="space-y-1">
                       <p className="text-sm font-medium leading-none">{donation.campaignName}</p>
@@ -265,7 +265,7 @@ export default function DonorDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Your Badges</CardTitle>
-              <CardDescription>Achievements you've earned through your donations</CardDescription>
+              <CardDescription>Achievements you&apos;ve earned through your donations</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">

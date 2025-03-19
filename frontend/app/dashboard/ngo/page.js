@@ -13,13 +13,14 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { ArrowUpRight, CheckCircle, DollarSign, Plus, Users } from "lucide-react"
 import DonationChart from "@/components/dashboard/donation-chart"
+import Image from "next/image"
 
 export default function NGODashboard() {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { user, isAuthenticated } = useAppSelector(selectAuth)
   const posts = useAppSelector(selectPosts)
-  const [ngoPosts, setNgoPosts] = useState<any[]>([])
+  const [ngoPosts, setNgoPosts] = useState([])
   const [totalRaised, setTotalRaised] = useState(0)
   const [totalDonors, setTotalDonors] = useState(0)
 
@@ -83,7 +84,7 @@ export default function NGODashboard() {
       },
     ]
 
-    dispatch(setPosts(mockPosts as any))
+    dispatch(setPosts(mockPosts))
     setNgoPosts(mockPosts)
 
     // Calculate total raised and donors
@@ -252,9 +253,11 @@ export default function NGODashboard() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {ngoPosts.map((post) => (
               <Card key={post.id} className="overflow-hidden">
-                <img
+                <Image
                   src={`/placeholder.svg?height=200&width=400&text=${encodeURIComponent(post.title)}`}
                   alt={post.title}
+                  width={1000}
+                  height={1000}
                   className="w-full h-48 object-cover"
                 />
                 <CardHeader>

@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 
-export default function NavigationProgress() {
+export function NavigationProgressComponent() {
   const [isNavigating, setIsNavigating] = useState(false)
   const [progress, setProgress] = useState(0)
   const pathname = usePathname()
@@ -58,3 +58,10 @@ export default function NavigationProgress() {
   )
 }
 
+export default function NavigationProgress() {
+  return (
+    <Suspense fallback={null}>
+      <NavigationProgressComponent />
+    </Suspense>
+  )
+}

@@ -32,7 +32,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "app/leaderboard/page.js", "app/posts/loading.js", "app/posts/page.js", "app/posts/create/page.js", "app/privacy/page.js", "app/profile/ngo/page.js", "app/profile/donor/page.js", "components/file-upload.js", "app/auth/login/page.js", "app/auth/register/page.js", "components/dashboard/donation-chart.js", "components/theme-provider.js", "app/donation/donate/loading.js", "app/donation/donate/page.js", "app/cookies/page.js"  ],
+, "app/leaderboard/page.js", "app/posts/loading.js", "app/posts/page.js", "app/posts/create/page.js", "app/privacy/page.js", "app/profile/ngo/page.js", "app/profile/donor/page.js", "components/file-upload.js", "app/auth/login/page.js", "app/auth/register/page.js", "components/dashboard/donation-chart.js", "components/theme-provider.js", "app/donation/donate/loading.js", "app/donation/donate/page.js", "app/cookies/page.js", "app/dashboard/donor/page.js", "app/dashboard/ngo/page.js"  ],
   "exclude": [
     "node_modules"
   ]
