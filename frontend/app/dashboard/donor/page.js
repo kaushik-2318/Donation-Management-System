@@ -22,14 +22,17 @@ export default function DonorDashboard() {
   const [badges, setBadges] = useState([])
 
   useEffect(() => {
+   
+    if (!isAuthenticated || !user) return;
+
     if (!isAuthenticated) {
       router.push("/auth/login")
       return
     }
 
-    if (user?.role !== "DONOR") {
-      router.push(`/dashboard/${user?.role.toLowerCase()}`)
-      return
+    if (user.role !== "DONOR") {
+      router.push(`/dashboard/${user.role.toLowerCase()}`);
+      return;
     }
 
     // Fetch donations (mock data for demo)
