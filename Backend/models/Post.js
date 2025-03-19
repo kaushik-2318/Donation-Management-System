@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema(
   {
-    author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // NGO or Receiver
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // NGO, Receiver or admin
     title: { type: String, required: true },
     description: { type: String, required: true },
     proofLink: { 

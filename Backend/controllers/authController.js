@@ -133,6 +133,22 @@ const login = async (req, res, next) => {
   }
 };
 
+const logout = async (req, res, next) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      expires: new Date(0), // Expire the cookie immediately
+    });
+
+    res.json({ message: "Logout successful!" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 const verifyOtp = async (req, res, next) => {
   try {
@@ -189,7 +205,53 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
+const resendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return next(new Error("Email is required."));
+    }
+
+    // ✅ Normalize email before querying
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // ✅ Find user
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return next(new Error("User not found."));
+    }
+
+    if (user.isVerified) {
+      return next(new Error("User is already verified."));
+    }
+
+    // ✅ Generate & Hash New OTP
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = await bcrypt.hash(newOtp, 10);
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10-minute expiry
+
+    // ✅ Update OTP & Expiry Time in Database
+    user.otp = hashedOtp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    // ✅ Send New OTP via Email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: normalizedEmail,
+      subject: "Resend OTP - Verify Your Email",
+      html: Verification_Email_Template.replace("{verificationCode}", newOtp),
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: "New OTP sent! Please check your email." });
+  } catch (error) {
+    next(error);
+  }
+};
 
 
-
-module.exports = { register,login, verifyOtp };
+module.exports = { register, login, logout, verifyOtp, resendOtp };

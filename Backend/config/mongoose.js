@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
 
+
 // ✅ Construct MongoDB URI
 const mongoUrl =
   process.env.MONGO_ATLAS_URL;
 
 // ✅ MongoDB Connection Options
 const options = {
-  tls: true, // Ensure TLS encryption for secure connections
-  tlsAllowInvalidCertificates: process.env.NODE_ENV !== "production", // Allow invalid certs only in development
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true,
+  // tls: true, // Ensure TLS encryption for secure connections
+  // tlsAllowInvalidCertificates: process.env.NODE_ENV !== "production", // Allow invalid certs only in development
 };
 
 // ✅ Connect to MongoDB

@@ -4,7 +4,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon --openssl-legacy-provider app.js"
+    "start": "nodemon --openssl-legacy-provider app.js"
   },
   "keywords": [],
   "author": "",
