@@ -2,116 +2,138 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { useAppDispatch } from "@/lib/redux/hooks"
-import { login } from "@/lib/redux/slices/authSlice"
+import { Checkbox } from "@/components/ui/checkbox"
+import { login } from "@/lib/api"
+import BackgroundAnimation from "@/components/background-animation"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const dispatch = useAppDispatch()
+  const searchParams = useSearchParams()
+  const returnUrl = searchParams.get("returnUrl") || ""
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
+    setError("")
 
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await login(formData)
 
-      // Simulate user data from API
-      const userData = {
-        id: "1",
-        name: "John Doe",
-        email,
-        role: "DONOR", // or "NGO" or "RECEIVER"
-        avatar: "",
-        token: "sample-jwt-token",
+      // Store token and user info in localStorage
+      localStorage.setItem("token", response.token)
+      localStorage.setItem("userType", response.userType)
+      localStorage.setItem("userName", response.user.name)
+
+      // Redirect to dashboard or return URL
+      if (returnUrl) {
+        router.push(returnUrl)
+      } else {
+        router.push(`/dashboard/${response.userType.toLowerCase()}`)
       }
-
-      dispatch(login(userData))
-
-      toast({
-        title: "Login successful",
-        description: "Welcome back to the NGO Donation System!",
-      })
-
-      router.push(`/dashboard/${userData.role.toLowerCase()}`)
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
-      })
+    } catch (err) {
+      setError(err.message || "Failed to login. Please check your credentials.")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="container flex h-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">Enter your credentials to sign in to your account</p>
-        </div>
-        <Card>
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle>Login</CardTitle>
-              <CardDescription>Enter your email and password to login</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+    <div className="min-h-screen flex flex-col">
+      <BackgroundAnimation />
+      <div className="flex-grow flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-md p-8 border">
+            <div className="text-center mb-6">
+              <Link href="/" className="inline-block">
+                <h1 className="text-2xl font-bold text-orange-600">Samarthan Kriya</h1>
+              </Link>
+              <h2 className="text-2xl font-bold mt-6 mb-2">Welcome Back</h2>
+              <p className="text-gray-600">Sign in to your account to continue</p>
+            </div>
+
+            {error && <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
+                  className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                 />
               </div>
+
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/auth/forgot-password"
-                    className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-                  >
+                  <Link href="/auth/forgot-password" className="text-sm text-orange-600 hover:underline">
                     Forgot password?
                   </Link>
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
+                  className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                 />
               </div>
-            </CardContent>
-            <CardFooter className="flex flex-col">
-              <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign in"}
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="rememberMe"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onCheckedChange={(checked) => setFormData({ ...formData, rememberMe: checked })}
+                  className="text-orange-600 focus:ring-orange-500"
+                />
+                <Label htmlFor="rememberMe" className="text-sm font-normal">
+                  Remember me for 30 days
+                </Label>
+              </div>
+
+              <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
-            </CardFooter>
-          </form>
-        </Card>
-        <div className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="underline underline-offset-4 hover:text-primary">
-            Register
-          </Link>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <Link href="/auth/register" className="text-orange-600 hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

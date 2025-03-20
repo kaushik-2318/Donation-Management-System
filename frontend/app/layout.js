@@ -1,39 +1,29 @@
-import "./globals.css"
 import { Inter } from "next/font/google"
-import { Providers } from "@/components/providers"
-import { Toaster } from "@/components/ui/sonner"
-import Header from "@/components/layout/header"
-import Footer from "@/components/layout/footer"
+import "./globals.css"
 import Preloader from "@/components/preloader"
-// import BackgroundAnimation from "@/components/background-animation"
-import NavigationProgress from "@/components/navigation-progress"
-
-
+import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
-
 export const metadata = {
-  title: "Samarthan Kriya | Empowering Change Through Giving",
-  description: "A platform for NGOs, donors, and receivers to manage donations and make a difference",
+  title: "Samarthan Kriya - NGO Donation Platform",
+  description: "Connect with NGOs, support worthy causes, and help those in need",
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Preloader />
-          <NavigationProgress />
-          {/* <BackgroundAnimation /> */}
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <Toaster />
-          </div>
-        </Providers>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
+
+
+
+import './globals.css'

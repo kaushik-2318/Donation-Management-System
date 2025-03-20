@@ -1,315 +1,200 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAppSelector, useAppDispatch } from "@/lib/redux/hooks"
-import { selectAuth } from "@/lib/redux/slices/authSlice"
-import { setDonations, selectDonations } from "@/lib/redux/slices/donationSlice"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getDashboardData } from "@/lib/api"
+import DashboardLayout from "@/components/dashboard/layout"
+import DonationHistory from "@/components/dashboard/donation-history"
+import DashboardStats from "@/components/dashboard/dashboard-stats"
+import LeaderboardWidget from "@/components/dashboard/leaderboard-widget"
+import BadgesWidget from "@/components/dashboard/badges-widget"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ArrowUpRight, Award, DollarSign, Heart } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import DonationChart from "@/components/dashboard/donation-chart"
 
 export default function DonorDashboard() {
   const router = useRouter()
-  const dispatch = useAppDispatch()
-  const { user, isAuthenticated } = useAppSelector(selectAuth)
-  const donations = useAppSelector(selectDonations)
-  const [totalDonated, setTotalDonated] = useState(0)
-  const [badges, setBadges] = useState([])
+  const [dashboardData, setDashboardData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [leaderboardPeriod, setLeaderboardPeriod] = useState("daily")
 
   useEffect(() => {
-   
-    if (!isAuthenticated || !user) return;
+    // Check if user is logged in and is a donor
+    const token = localStorage.getItem("token")
+    const userType = localStorage.getItem("userType")
 
-    if (!isAuthenticated) {
+    if (!token || userType !== "donor") {
       router.push("/auth/login")
       return
     }
 
-    if (user.role !== "DONOR") {
-      router.push(`/dashboard/${user.role.toLowerCase()}`);
-      return;
+    const fetchData = async () => {
+      try {
+        const data = await getDashboardData("donor")
+        setDashboardData(data)
+      } catch (err) {
+        setError("Failed to load dashboard data")
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
     }
 
-    // Fetch donations (mock data for demo)
-    const mockDonations = [
+    fetchData()
+  }, [router])
+
+  // Sample data for demonstration
+  const sampleData = {
+    stats: {
+      totalDonated: 25000,
+      campaignsSupported: 12,
+      ngosSupported: 5,
+      rank: 42,
+    },
+    donationHistory: [
       {
-        id: "1",
-        amount: 500,
-        donorId: user?.id || "",
-        donorName: user?.name || "",
-        campaignId: "1",
-        campaignName: "Clean Water Initiative",
+        id: 1,
+        campaign: "Clean Water for Rural Communities",
+        ngo: "Water Access Initiative",
+        amount: 5000,
         date: "2023-03-15",
-        status: "completed",
+        receiptUrl: "/receipts/receipt-1.pdf",
       },
       {
-        id: "2",
-        amount: 1000,
-        donorId: user?.id || "",
-        donorName: user?.name || "",
-        campaignId: "2",
-        campaignName: "Education for All",
-        date: "2023-04-20",
-        status: "completed",
+        id: 2,
+        campaign: "Education Supplies for Schools",
+        ngo: "Education for All",
+        amount: 2500,
+        date: "2023-04-22",
+        receiptUrl: "/receipts/receipt-2.pdf",
       },
       {
-        id: "3",
-        amount: 750,
-        donorId: user?.id || "",
-        donorName: user?.name || "",
-        campaignId: "3",
-        campaignName: "Food for the Homeless",
+        id: 3,
+        campaign: "Healthcare for Underserved Areas",
+        ngo: "Healthcare Access Initiative",
+        amount: 7500,
         date: "2023-05-10",
-        status: "completed",
+        receiptUrl: "/receipts/receipt-3.pdf",
       },
-    ]
+      {
+        id: 4,
+        campaign: "Community Center Renovation",
+        ngo: "Community Development Fund",
+        amount: 3000,
+        date: "2023-06-05",
+        receiptUrl: "/receipts/receipt-4.pdf",
+      },
+      {
+        id: 5,
+        campaign: "Food Distribution Program",
+        ngo: "Food Security Alliance",
+        amount: 4000,
+        date: "2023-07-18",
+        receiptUrl: "/receipts/receipt-5.pdf",
+      },
+    ],
+    leaderboard: {
+      daily: [
+        { rank: 1, name: "Rahul Sharma", amount: 15000, badge: "gold" },
+        { rank: 2, name: "Priya Patel", amount: 12500, badge: "gold" },
+        { rank: 3, name: "Amit Kumar", amount: 10000, badge: "gold" },
+        { rank: 4, name: "Neha Singh", amount: 7500, badge: "silver" },
+        { rank: 5, name: "Vikram Mehta", amount: 5000, badge: "silver" },
+      ],
+      monthly: [
+        { rank: 1, name: "Suresh Reddy", amount: 75000, badge: "gold" },
+        { rank: 2, name: "Ananya Desai", amount: 62500, badge: "gold" },
+        { rank: 3, name: "Rajesh Gupta", amount: 50000, badge: "gold" },
+        { rank: 4, name: "Meera Joshi", amount: 37500, badge: "silver" },
+        { rank: 5, name: "Kiran Shah", amount: 25000, badge: "silver" },
+      ],
+      yearly: [
+        { rank: 1, name: "Tata Group", amount: 1500000, badge: "gold" },
+        { rank: 2, name: "Reliance Foundation", amount: 1250000, badge: "gold" },
+        { rank: 3, name: "Infosys Foundation", amount: 1000000, badge: "gold" },
+        { rank: 4, name: "Wipro Foundation", amount: 750000, badge: "silver" },
+        { rank: 5, name: "Adani Foundation", amount: 500000, badge: "silver" },
+      ],
+    },
+    badges: [
+      { id: 1, name: "First Donation", description: "Made your first donation", earned: true },
+      { id: 2, name: "Regular Donor", description: "Donated for 3 consecutive months", earned: true },
+      { id: 3, name: "Silver Supporter", description: "Donated over ₹10,000 in total", earned: true },
+      { id: 4, name: "Gold Supporter", description: "Donated over ₹50,000 in total", earned: false },
+      { id: 5, name: "Platinum Supporter", description: "Donated over ₹100,000 in total", earned: false },
+    ],
+  }
 
-    dispatch(setDonations(mockDonations))
-
-    // Calculate total donated
-    const total = mockDonations.reduce((sum, donation) => sum + donation.amount, 0)
-    setTotalDonated(total)
-
-    // Determine badges based on total donation amount
-    const badgesList = []
-    if (total >= 500) badgesList.push("Bronze Donor")
-    if (total >= 1000) badgesList.push("Silver Donor")
-    if (total >= 2000) badgesList.push("Gold Donor")
-    setBadges(badgesList)
-  }, [dispatch, isAuthenticated, router, user])
+  // Use sample data for demonstration
+  const data = dashboardData || sampleData
 
   return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">Donor Dashboard</h1>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Donated</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalDonated.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+20% from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Campaigns Supported</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{donations.length}</div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Donor Rank</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">42</div>
-            <p className="text-xs text-muted-foreground">Top 10% of donors</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{badges.length}</div>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {badges.map((badge) => (
-                <Badge key={badge} variant="secondary" className="text-xs">
-                  {badge}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+    <DashboardLayout userType="donor">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Donor Dashboard</h1>
+        <Link href="/campaigns">
+          <Button className="bg-orange-600 hover:bg-orange-700">Donate Now</Button>
+        </Link>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="donations">Donations</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
-        </TabsList>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 text-red-600 p-4 rounded-md">{error}</div>
+      ) : (
+        <>
+          <DashboardStats
+            stats={[
+              { label: "Total Donated", value: `₹${data.stats.totalDonated.toLocaleString()}` },
+              { label: "Campaigns Supported", value: data.stats.campaignsSupported },
+              { label: "NGOs Supported", value: data.stats.ngosSupported },
+              { label: "Your Rank", value: `#${data.stats.rank}` },
+            ]}
+          />
 
-        <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Donation History</CardTitle>
-              <CardDescription>Your donation activity over the past 6 months</CardDescription>
-            </CardHeader>
-            <CardContent className="pl-2">
-              <DonationChart />
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border">
+              <h2 className="text-lg font-semibold mb-4">Your Donation History</h2>
+              <DonationHistory donations={data.donationHistory} />
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Donations</CardTitle>
-                <CardDescription>Your most recent contributions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {donations.slice(0, 3).map((donation) => (
-                    <div key={donation.id} className="flex items-center">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium leading-none">{donation.campaignName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          ₹{donation.amount.toLocaleString()} on {new Date(donation.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="ml-auto font-medium">
-                        <Badge variant="outline" className="ml-2">
-                          {donation.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button variant="outline" className="w-full mt-4" asChild>
-                  <Link href="/donations">
-                    View all
-                    <ArrowUpRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recommended Campaigns</CardTitle>
-                <CardDescription>Campaigns you might be interested in</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Healthcare for Rural Areas</p>
-                      <p className="text-sm text-muted-foreground">By Medical Relief NGO</p>
-                    </div>
-                    <div className="ml-auto">
-                      <Button size="sm">Donate</Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Disaster Relief Fund</p>
-                      <p className="text-sm text-muted-foreground">By Emergency Response Team</p>
-                    </div>
-                    <div className="ml-auto">
-                      <Button size="sm">Donate</Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Women Empowerment Initiative</p>
-                      <p className="text-sm text-muted-foreground">By Women&apos;s Rights Foundation</p>
-                    </div>
-                    <div className="ml-auto">
-                      <Button size="sm">Donate</Button>
-                    </div>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full mt-4" asChild>
-                  <Link href="/posts">
-                    Browse all campaigns
-                    <ArrowUpRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <h2 className="text-lg font-semibold mb-4">Your Badges</h2>
+              <BadgesWidget badges={data.badges} />
+            </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="donations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Donations</CardTitle>
-              <CardDescription>A complete history of your donations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {donations.map((donation) => (
-                  <div key={donation.id} className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">{donation.campaignName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        ₹{donation.amount.toLocaleString()} on {new Date(donation.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">
-                      <Badge variant="outline" className="ml-2">
-                        {donation.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Leaderboard</h2>
+              <Tabs
+                defaultValue="daily"
+                value={leaderboardPeriod}
+                onValueChange={setLeaderboardPeriod}
+                className="w-auto"
+              >
+                <TabsList>
+                  <TabsTrigger value="daily">Daily</TabsTrigger>
+                  <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                  <TabsTrigger value="yearly">Yearly</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
 
-        <TabsContent value="badges" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Badges</CardTitle>
-              <CardDescription>Achievements you&apos;ve earned through your donations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                {badges.map((badge) => (
-                  <Card key={badge}>
-                    <CardContent className="pt-6 text-center">
-                      <Award className="h-12 w-12 mx-auto mb-2 text-primary" />
-                      <h3 className="text-lg font-medium">{badge}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {badge === "Bronze Donor" && "Donated ₹500+"}
-                        {badge === "Silver Donor" && "Donated ₹1,000+"}
-                        {badge === "Gold Donor" && "Donated ₹2,000+"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
+            <LeaderboardWidget leaderboard={data.leaderboard[leaderboardPeriod]} />
 
-                {/* Locked badges */}
-                {!badges.includes("Gold Donor") && (
-                  <Card className="opacity-50">
-                    <CardContent className="pt-6 text-center">
-                      <Award className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                      <h3 className="text-lg font-medium">Gold Donor</h3>
-                      <p className="text-sm text-muted-foreground mt-1">Donate ₹2,000+ to unlock</p>
-                    </CardContent>
-                  </Card>
-                )}
-
-                <Card className="opacity-50">
-                  <CardContent className="pt-6 text-center">
-                    <Award className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                    <h3 className="text-lg font-medium">Platinum Donor</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Donate ₹5,000+ to unlock</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            <Link href="/leaderboard">
+              <Button variant="outline" className="w-full mt-4 border-orange-600 text-orange-600 hover:bg-orange-50">
+                View Full Leaderboard
+              </Button>
+            </Link>
+          </div>
+        </>
+      )}
+    </DashboardLayout>
   )
 }
 

@@ -1,384 +1,199 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useAppSelector, useAppDispatch } from "@/lib/redux/hooks"
-import { selectAuth } from "@/lib/redux/slices/authSlice"
-import { setPosts, selectPosts } from "@/lib/redux/slices/postSlice"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getDashboardData } from "@/lib/api"
+import DashboardLayout from "@/components/dashboard/layout"
+import DonationsChart from "@/components/dashboard/donations-chart"
+import CampaignsList from "@/components/dashboard/campaigns-list"
+import DashboardStats from "@/components/dashboard/dashboard-stats"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { ArrowUpRight, CheckCircle, DollarSign, Plus, Users } from "lucide-react"
-import DonationChart from "@/components/dashboard/donation-chart"
-import Image from "next/image"
+import { PlusCircle } from "lucide-react"
+import Link from "next/link"
 
 export default function NGODashboard() {
   const router = useRouter()
-  const dispatch = useAppDispatch()
-  const { user, isAuthenticated } = useAppSelector(selectAuth)
-  const posts = useAppSelector(selectPosts)
-  const [ngoPosts, setNgoPosts] = useState([])
-  const [totalRaised, setTotalRaised] = useState(0)
-  const [totalDonors, setTotalDonors] = useState(0)
+  const [dashboardData, setDashboardData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Check if user is logged in and is an NGO
+    const token = localStorage.getItem("token")
+    const userType = localStorage.getItem("userType")
+
+    if (!token || userType !== "ngo") {
       router.push("/auth/login")
       return
     }
 
-    if (user?.role !== "NGO") {
-      router.push(`/dashboard/${user?.role.toLowerCase()}`)
-      return
+    const fetchData = async () => {
+      try {
+        const data = await getDashboardData("ngo")
+        setDashboardData(data)
+      } catch (err) {
+        setError("Failed to load dashboard data")
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
     }
 
-    // Fetch posts (mock data for demo)
-    const mockPosts = [
+    fetchData()
+  }, [router])
+
+  // Sample data for demonstration
+  const sampleData = {
+    stats: {
+      totalDonations: 1250000,
+      totalCampaigns: 8,
+      activeCampaigns: 5,
+      donorsCount: 450,
+    },
+    donationsData: [
+      { month: "Jan", amount: 50000 },
+      { month: "Feb", amount: 75000 },
+      { month: "Mar", amount: 100000 },
+      { month: "Apr", amount: 80000 },
+      { month: "May", amount: 120000 },
+      { month: "Jun", amount: 150000 },
+      { month: "Jul", amount: 180000 },
+      { month: "Aug", amount: 220000 },
+      { month: "Sep", amount: 190000 },
+      { month: "Oct", amount: 140000 },
+      { month: "Nov", amount: 95000 },
+      { month: "Dec", amount: 110000 },
+    ],
+    campaigns: [
       {
-        id: "1",
-        title: "Clean Water Initiative",
-        description: "Help us provide clean drinking water to rural communities in need.",
-        goal: 50000,
-        raised: 32500,
-        creatorId: user?.id || "",
-        creatorName: user?.name || "",
-        creatorType: "NGO",
-        proofLink: "https://drive.google.com/file/example1",
-        createdAt: "2023-03-01",
-        updatedAt: "2023-03-15",
+        id: 1,
+        title: "Clean Water for Rural Communities",
+        raised: 450000,
+        goal: 750000,
         status: "active",
-        donorsCount: 28,
+        daysLeft: 23,
       },
       {
-        id: "2",
-        title: "Education for All",
-        description: "Support our mission to provide quality education to underprivileged children.",
-        goal: 75000,
-        raised: 45000,
-        creatorId: user?.id || "",
-        creatorName: user?.name || "",
-        creatorType: "NGO",
-        proofLink: "https://drive.google.com/file/example2",
-        createdAt: "2023-02-15",
-        updatedAt: "2023-03-10",
+        id: 2,
+        title: "Education Supplies for Schools",
+        raised: 285000,
+        goal: 300000,
         status: "active",
-        donorsCount: 35,
+        daysLeft: 15,
       },
       {
-        id: "3",
-        title: "Food for the Homeless",
-        description: "Help us feed homeless individuals in urban areas.",
-        goal: 30000,
-        raised: 28500,
-        creatorId: user?.id || "",
-        creatorName: user?.name || "",
-        creatorType: "NGO",
-        proofLink: "https://drive.google.com/file/example3",
-        createdAt: "2023-01-20",
-        updatedAt: "2023-03-05",
-        status: "active",
-        donorsCount: 22,
+        id: 3,
+        title: "Healthcare for Underserved Areas",
+        raised: 500000,
+        goal: 500000,
+        status: "completed",
+        daysLeft: 0,
       },
-    ]
+      {
+        id: 4,
+        title: "Community Center Renovation",
+        raised: 128000,
+        goal: 400000,
+        status: "active",
+        daysLeft: 45,
+      },
+      {
+        id: 5,
+        title: "Food Distribution Program",
+        raised: 189000,
+        goal: 250000,
+        status: "active",
+        daysLeft: 10,
+      },
+    ],
+  }
 
-    dispatch(setPosts(mockPosts))
-    setNgoPosts(mockPosts)
-
-    // Calculate total raised and donors
-    const raised = mockPosts.reduce((sum, post) => sum + post.raised, 0)
-    setTotalRaised(raised)
-
-    const donors = mockPosts.reduce((sum, post) => sum + post.donorsCount, 0)
-    setTotalDonors(donors)
-  }, [dispatch, isAuthenticated, router, user])
+  // Use sample data for demonstration
+  const data = dashboardData || sampleData
 
   return (
-    <div className="container py-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <div className="flex items-center">
-            <h1 className="text-3xl font-bold">NGO Dashboard</h1>
-            <Badge className="ml-2">Verified</Badge>
-          </div>
-          <p className="text-muted-foreground mt-1">Manage your campaigns and track donations</p>
+    <DashboardLayout userType="ngo">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">NGO Dashboard</h1>
+        <Link href="/campaigns/create">
+          <Button className="bg-orange-600 hover:bg-orange-700">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Campaign
+          </Button>
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
-        <Button asChild>
-          <Link href="/posts/create">
-            <Plus className="mr-2 h-4 w-4" /> Create Campaign
-          </Link>
-        </Button>
-      </div>
+      ) : error ? (
+        <div className="bg-red-50 text-red-600 p-4 rounded-md">{error}</div>
+      ) : (
+        <>
+          <DashboardStats
+            stats={[
+              { label: "Total Donations", value: `₹${data.stats.totalDonations.toLocaleString()}` },
+              { label: "Total Campaigns", value: data.stats.totalCampaigns },
+              { label: "Active Campaigns", value: data.stats.activeCampaigns },
+              { label: "Total Donors", value: data.stats.donorsCount },
+            ]}
+          />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Raised</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalRaised.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+15% from last month</p>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border">
+              <h2 className="text-lg font-semibold mb-4">Donations Over Time</h2>
+              <DonationsChart data={data.donationsData} />
+            </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{ngoPosts.length}</div>
-            <p className="text-xs text-muted-foreground">+1 from last month</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Donors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalDonors}</div>
-            <p className="text-xs text-muted-foreground">+12 from last month</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="donors">Donors</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Donation History</CardTitle>
-              <CardDescription>Your donation activity over the past 6 months</CardDescription>
-            </CardHeader>
-            <CardContent className="pl-2">
-              <DonationChart />
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Campaign Performance</CardTitle>
-                <CardDescription>Progress of your active campaigns</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {ngoPosts.map((post) => (
-                    <div key={post.id} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">{post.title}</h3>
-                        <span className="text-sm font-medium">{Math.round((post.raised / post.goal) * 100)}%</span>
-                      </div>
-                      <Progress value={(post.raised / post.goal) * 100} />
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>₹{post.raised.toLocaleString()}</span>
-                        <span>₹{post.goal.toLocaleString()}</span>
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <h2 className="text-lg font-semibold mb-4">Campaign Performance</h2>
+              <div className="space-y-4">
+                {data.campaigns.slice(0, 3).map((campaign) => (
+                  <div key={campaign.id} className="border-b pb-4 last:border-0">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-medium">{campaign.title}</span>
+                      <span className={campaign.status === "active" ? "text-green-600" : "text-orange-600"}>
+                        {campaign.status === "active" ? "Active" : "Completed"}
+                      </span>
+                    </div>
+                    <div className="mb-2">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-orange-600 rounded-full"
+                          style={{ width: `${Math.min(100, (campaign.raised / campaign.goal) * 100)}%` }}
+                        ></div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Donors</CardTitle>
-                <CardDescription>People who recently donated to your campaigns</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Rajesh Kumar</p>
-                      <p className="text-sm text-muted-foreground">₹5,000 to Clean Water Initiative</p>
-                    </div>
-                    <div className="ml-auto font-medium">
-                      <Badge variant="outline" className="ml-2">
-                        2 days ago
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Priya Sharma</p>
-                      <p className="text-sm text-muted-foreground">₹2,500 to Education for All</p>
-                    </div>
-                    <div className="ml-auto font-medium">
-                      <Badge variant="outline" className="ml-2">
-                        3 days ago
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">Amit Patel</p>
-                      <p className="text-sm text-muted-foreground">₹1,000 to Food for the Homeless</p>
-                    </div>
-                    <div className="ml-auto font-medium">
-                      <Badge variant="outline" className="ml-2">
-                        5 days ago
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full mt-4">
-                  View all donors
-                  <ArrowUpRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="campaigns" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold">Your Campaigns</h2>
-            <Button asChild>
-              <Link href="/posts/create">
-                <Plus className="mr-2 h-4 w-4" /> New Campaign
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {ngoPosts.map((post) => (
-              <Card key={post.id} className="overflow-hidden">
-                <Image
-                  src={`/placeholder.svg?height=200&width=400&text=${encodeURIComponent(post.title)}`}
-                  alt={post.title}
-                  width={1000}
-                  height={1000}
-                  className="w-full h-48 object-cover"
-                />
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-xl">{post.title}</CardTitle>
-                    <Badge>{post.status}</Badge>
-                  </div>
-                  <CardDescription>Created on {new Date(post.createdAt).toLocaleDateString()}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>₹{post.raised.toLocaleString()} raised</span>
-                      <span className="font-medium">₹{post.goal.toLocaleString()}</span>
-                    </div>
-                    <Progress value={(post.raised / post.goal) * 100} />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{post.donorsCount} donors</span>
-                      <span>{Math.round((post.raised / post.goal) * 100)}% of goal</span>
+                      <span>₹{campaign.raised.toLocaleString()} raised</span>
+                      <span className="text-gray-500">₹{campaign.goal.toLocaleString()} goal</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                ))}
+              </div>
+              <Link href="/campaigns/manage">
+                <Button variant="outline" className="w-full mt-4 border-orange-600 text-orange-600 hover:bg-orange-50">
+                  View All Campaigns
+                </Button>
+              </Link>
+            </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="donors" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Donors</CardTitle>
-              <CardDescription>People who have contributed the most to your campaigns</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted mr-4">
-                    <span className="text-sm font-medium">1</span>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Rajesh Kumar</p>
-                    <p className="text-sm text-muted-foreground">Total: ₹12,500 · 3 donations</p>
-                  </div>
-                  <div className="ml-auto">
-                    <Badge variant="secondary">Platinum Donor</Badge>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted mr-4">
-                    <span className="text-sm font-medium">2</span>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Priya Sharma</p>
-                    <p className="text-sm text-muted-foreground">Total: ₹10,000 · 4 donations</p>
-                  </div>
-                  <div className="ml-auto">
-                    <Badge variant="secondary">Gold Donor</Badge>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted mr-4">
-                    <span className="text-sm font-medium">3</span>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Amit Patel</p>
-                    <p className="text-sm text-muted-foreground">Total: ₹7,500 · 5 donations</p>
-                  </div>
-                  <div className="ml-auto">
-                    <Badge variant="secondary">Silver Donor</Badge>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Donations</CardTitle>
-              <CardDescription>Latest contributions to your campaigns</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Sneha Gupta</p>
-                    <p className="text-sm text-muted-foreground">₹2,000 to Clean Water Initiative</p>
-                  </div>
-                  <div className="ml-auto font-medium">
-                    <Badge variant="outline" className="ml-2">
-                      Today
-                    </Badge>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Vikram Singh</p>
-                    <p className="text-sm text-muted-foreground">₹1,500 to Education for All</p>
-                  </div>
-                  <div className="ml-auto font-medium">
-                    <Badge variant="outline" className="ml-2">
-                      Yesterday
-                    </Badge>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Neha Verma</p>
-                    <p className="text-sm text-muted-foreground">₹500 to Food for the Homeless</p>
-                  </div>
-                  <div className="ml-auto font-medium">
-                    <Badge variant="outline" className="ml-2">
-                      2 days ago
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Your Campaigns</h2>
+              <Link href="/campaigns/manage">
+                <Button variant="ghost" size="sm" className="text-orange-600 hover:bg-orange-50">
+                  Manage All
+                </Button>
+              </Link>
+            </div>
+            <CampaignsList campaigns={data.campaigns} />
+          </div>
+        </>
+      )}
+    </DashboardLayout>
   )
 }
 

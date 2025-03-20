@@ -1,272 +1,225 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useAppSelector } from "@/lib/redux/hooks"
-import { selectDonations } from "@/lib/redux/slices/donationSlice"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Award, Trophy } from "lucide-react"
+import { useState } from "react"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
+import { Trophy, Award, Medal } from "lucide-react"
+import BackgroundAnimation from "@/components/background-animation"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LeaderboardPage() {
-  const donations = useAppSelector(selectDonations)
-  const [donors, setDonors] = useState([])
-  const [topNGOs, setTopNGOs] = useState([])
+  const [period, setPeriod] = useState("daily")
 
-  useEffect(() => {
-    // Calculate donor statistics
-    const donorMap = new Map()
+  // Sample data for demonstration
+  const leaderboardData = {
+    daily: [
+      { rank: 1, name: "Rahul Sharma", amount: 15000, badge: "gold" },
+      { rank: 2, name: "Priya Patel", amount: 12500, badge: "gold" },
+      { rank: 3, name: "Amit Kumar", amount: 10000, badge: "gold" },
+      { rank: 4, name: "Neha Singh", amount: 7500, badge: "silver" },
+      { rank: 5, name: "Vikram Mehta", amount: 5000, badge: "silver" },
+      { rank: 6, name: "Anita Desai", amount: 4500, badge: "silver" },
+      { rank: 7, name: "Rajesh Gupta", amount: 4000, badge: "silver" },
+      { rank: 8, name: "Meera Joshi", amount: 3500, badge: "silver" },
+      { rank: 9, name: "Kiran Shah", amount: 3000, badge: "bronze" },
+      { rank: 10, name: "Sanjay Verma", amount: 2800, badge: "bronze" },
+      { rank: 11, name: "Pooja Reddy", amount: 2500, badge: "bronze" },
+      { rank: 12, name: "Arun Nair", amount: 2200, badge: "bronze" },
+      { rank: 13, name: "Divya Kapoor", amount: 2000, badge: "bronze" },
+      { rank: 14, name: "Vivek Malhotra", amount: 1800, badge: "bronze" },
+      { rank: 15, name: "Anjali Sharma", amount: 1500, badge: "bronze" },
+    ],
+    monthly: [
+      { rank: 1, name: "Suresh Reddy", amount: 75000, badge: "gold" },
+      { rank: 2, name: "Ananya Desai", amount: 62500, badge: "gold" },
+      { rank: 3, name: "Rajesh Gupta", amount: 50000, badge: "gold" },
+      { rank: 4, name: "Meera Joshi", amount: 37500, badge: "silver" },
+      { rank: 5, name: "Kiran Shah", amount: 25000, badge: "silver" },
+      { rank: 6, name: "Arjun Reddy", amount: 22500, badge: "silver" },
+      { rank: 7, name: "Nisha Patel", amount: 20000, badge: "silver" },
+      { rank: 8, name: "Vijay Kumar", amount: 17500, badge: "silver" },
+      { rank: 9, name: "Deepa Menon", amount: 15000, badge: "bronze" },
+      { rank: 10, name: "Ravi Shankar", amount: 14000, badge: "bronze" },
+      { rank: 11, name: "Sunita Rao", amount: 12500, badge: "bronze" },
+      { rank: 12, name: "Prakash Iyer", amount: 11000, badge: "bronze" },
+      { rank: 13, name: "Lakshmi Narayan", amount: 10000, badge: "bronze" },
+      { rank: 14, name: "Mohan Das", amount: 9000, badge: "bronze" },
+      { rank: 15, name: "Kavita Krishnan", amount: 7500, badge: "bronze" },
+    ],
+    yearly: [
+      { rank: 1, name: "Tata Group", amount: 1500000, badge: "gold" },
+      { rank: 2, name: "Reliance Foundation", amount: 1250000, badge: "gold" },
+      { rank: 3, name: "Infosys Foundation", amount: 1000000, badge: "gold" },
+      { rank: 4, name: "Wipro Foundation", amount: 750000, badge: "silver" },
+      { rank: 5, name: "Adani Foundation", amount: 500000, badge: "silver" },
+      { rank: 6, name: "Mahindra Foundation", amount: 450000, badge: "silver" },
+      { rank: 7, name: "Birla Group", amount: 400000, badge: "silver" },
+      { rank: 8, name: "Bajaj Foundation", amount: 350000, badge: "silver" },
+      { rank: 9, name: "Godrej Foundation", amount: 300000, badge: "bronze" },
+      { rank: 10, name: "Jindal Foundation", amount: 280000, badge: "bronze" },
+      { rank: 11, name: "Bharti Foundation", amount: 250000, badge: "bronze" },
+      { rank: 12, name: "TVS Group", amount: 220000, badge: "bronze" },
+      { rank: 13, name: "Hero Group", amount: 200000, badge: "bronze" },
+      { rank: 14, name: "Kotak Foundation", amount: 180000, badge: "bronze" },
+      { rank: 15, name: "Axis Bank Foundation", amount: 150000, badge: "bronze" },
+    ],
+  }
 
-    // In a real app, this would come from an API
-    // For demo purposes, we'll use the donations in the store and add some mock data
-    const allDonations = [
-      ...donations,
-      // Mock data to fill out the leaderboard
-      {
-        id: "mock1",
-        amount: 5000,
-        donorId: "donor1",
-        donorName: "Rajesh Kumar",
-        campaignId: "1",
-        campaignName: "Clean Water Initiative",
-        date: "2023-02-15",
-        status: "completed",
-      },
-      {
-        id: "mock2",
-        amount: 7500,
-        donorId: "donor2",
-        donorName: "Priya Sharma",
-        campaignId: "2",
-        campaignName: "Education for All",
-        date: "2023-03-10",
-        status: "completed",
-      },
-      {
-        id: "mock3",
-        amount: 10000,
-        donorId: "donor3",
-        donorName: "Amit Patel",
-        campaignId: "3",
-        campaignName: "Food for the Homeless",
-        date: "2023-01-20",
-        status: "completed",
-      },
-      {
-        id: "mock4",
-        amount: 15000,
-        donorId: "donor4",
-        donorName: "Sneha Gupta",
-        campaignId: "4",
-        campaignName: "Medical Treatment Support",
-        date: "2023-02-28",
-        status: "completed",
-      },
-      {
-        id: "mock5",
-        amount: 20000,
-        donorId: "donor5",
-        donorName: "Vikram Singh",
-        campaignId: "5",
-        campaignName: "Disaster Relief Fund",
-        date: "2023-02-10",
-        status: "completed",
-      },
-    ]
+  const getBadgeIcon = (badge) => {
+    switch (badge) {
+      case "gold":
+        return <Trophy className="h-6 w-6 text-yellow-500" />
+      case "silver":
+        return <Award className="h-6 w-6 text-gray-400" />
+      case "bronze":
+        return <Medal className="h-6 w-6 text-amber-700" />
+      default:
+        return null
+    }
+  }
 
-    allDonations.forEach((donation) => {
-      if (!donorMap.has(donation.donorId)) {
-        donorMap.set(donation.donorId, {
-          id: donation.donorId,
-          name: donation.donorName,
-          totalAmount: 0,
-          donationsCount: 0,
-          badges: [],
-        })
-      }
+  const getBadgeColor = (badge) => {
+    switch (badge) {
+      case "gold":
+        return "bg-yellow-50 text-yellow-700 border-yellow-200"
+      case "silver":
+        return "bg-gray-50 text-gray-700 border-gray-200"
+      case "bronze":
+        return "bg-amber-50 text-amber-700 border-amber-200"
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200"
+    }
+  }
 
-      const donor = donorMap.get(donation.donorId);
-      if (donor) {
-        donor.totalAmount += donation.amount;
-        donor.donationsCount += 1;
-      }
+  const getBadgeName = (badge) => {
+    switch (badge) {
+      case "gold":
+        return "Gold Donor"
+      case "silver":
+        return "Silver Donor"
+      case "bronze":
+        return "Bronze Donor"
+      default:
+        return "Donor"
+    }
+  }
 
-
-    })
-
-    // Assign badges based on donation amounts
-    donorMap.forEach((donor) => {
-      if (donor.totalAmount >= 500) donor.badges.push("Bronze Donor")
-      if (donor.totalAmount >= 1000) donor.badges.push("Silver Donor")
-      if (donor.totalAmount >= 2000) donor.badges.push("Gold Donor")
-      if (donor.totalAmount >= 5000) donor.badges.push("Platinum Donor")
-      if (donor.totalAmount >= 10000) donor.badges.push("Diamond Donor")
-    })
-
-    // Sort donors by total amount
-    const sortedDonors = Array.from(donorMap.values()).sort((a, b) => b.totalAmount - a.totalAmount)
-
-    setDonors(sortedDonors)
-
-    // Mock data for top NGOs
-    setTopNGOs([
-      {
-        id: "ngo1",
-        name: "Water for All NGO",
-        avatar: "",
-        campaignsCount: 5,
-        totalRaised: 125000,
-        donorsCount: 78,
-        verificationStatus: "verified",
-      },
-      {
-        id: "ngo2",
-        name: "Education First Foundation",
-        avatar: "",
-        campaignsCount: 3,
-        totalRaised: 95000,
-        donorsCount: 62,
-        verificationStatus: "verified",
-      },
-      {
-        id: "ngo3",
-        name: "Food Relief Organization",
-        avatar: "",
-        campaignsCount: 4,
-        totalRaised: 85000,
-        donorsCount: 53,
-        verificationStatus: "verified",
-      },
-      {
-        id: "ngo4",
-        name: "Disaster Response Team",
-        avatar: "",
-        campaignsCount: 2,
-        totalRaised: 175000,
-        donorsCount: 112,
-        verificationStatus: "verified",
-      },
-      {
-        id: "ngo5",
-        name: "Medical Relief NGO",
-        avatar: "",
-        campaignsCount: 6,
-        totalRaised: 145000,
-        donorsCount: 91,
-        verificationStatus: "verified",
-      },
-    ])
-  }, [donations])
+  const getPeriodTitle = () => {
+    switch (period) {
+      case "daily":
+        return "Today's Top Donors"
+      case "monthly":
+        return "This Month's Top Donors"
+      case "yearly":
+        return "This Year's Top Donors"
+      default:
+        return "Top Donors"
+    }
+  }
 
   return (
-    <div className="container py-10">
-      <div className="flex flex-col items-center text-center mb-8">
-        <Trophy className="h-12 w-12 text-primary mb-2" />
-        <h1 className="text-3xl font-bold">Donation Leaderboard</h1>
-        <p className="text-muted-foreground mt-1 max-w-2xl">
-          Recognizing our generous donors and impactful NGOs who are making a difference in the world.
-        </p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <BackgroundAnimation />
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <section className="mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold mb-4 md:mb-0">Donor Leaderboard</h1>
+            <Tabs defaultValue="daily" value={period} onValueChange={setPeriod} className="w-full md:w-auto">
+              <TabsList className="grid w-full md:w-auto grid-cols-3">
+                <TabsTrigger value="daily">Daily</TabsTrigger>
+                <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                <TabsTrigger value="yearly">Yearly</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
 
-      <Tabs defaultValue="donors" className="space-y-8">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-          <TabsTrigger value="donors">Top Donors</TabsTrigger>
-          <TabsTrigger value="ngos">Top NGOs</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="donors" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Donors</CardTitle>
-              <CardDescription>Recognizing our most generous contributors</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-8">
-                {donors.slice(0, 10).map((donor, index) => (
-                  <div key={donor.id} className="flex items-center">
-                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted mr-4">
-                      {index < 3 ? (
-                        <Award
-                          className={`h-4 w-4 ${index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-amber-600"}`}
-                        />
-                      ) : (
-                        <span className="text-sm font-medium">{index + 1}</span>
-                      )}
-                    </div>
-                    <Avatar className="h-10 w-10 mr-4">
-                      <AvatarImage src={donor.avatar} alt={donor.name} />
-                      <AvatarFallback>{donor.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                        <div>
-                          <p className="font-medium">{donor.name}</p>
-                          <p className="text-sm text-muted-foreground">{donor.donationsCount} donations</p>
-                        </div>
-                        <div className="mt-2 sm:mt-0 text-right">
-                          <p className="font-bold">₹{donor.totalAmount.toLocaleString()}</p>
-                          <div className="flex flex-wrap gap-1 mt-1 justify-end">
-                            {donor.badges.slice(-2).map((badge) => (
-                              <Badge key={badge} variant="secondary" className="text-xs">
-                                {badge}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="p-6 bg-orange-50 border-b">
+              <h2 className="text-2xl font-bold text-center mb-6">{getPeriodTitle()}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {leaderboardData[period].slice(0, 3).map((donor) => (
+                  <div
+                    key={donor.rank}
+                    className={`rounded-lg border p-6 flex flex-col items-center text-center transform transition-all hover:shadow-md hover:-translate-y-1 duration-300 ${getBadgeColor(donor.badge)}`}
+                  >
+                    <div className="text-2xl font-bold mb-1">#{donor.rank}</div>
+                    {getBadgeIcon(donor.badge)}
+                    <div className="text-xl font-semibold mt-3">{donor.name}</div>
+                    <div className="text-sm mt-1">{getBadgeName(donor.badge)}</div>
+                    <div className="font-bold mt-2">₹{donor.amount.toLocaleString()}</div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
 
-        <TabsContent value="ngos" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top NGOs</CardTitle>
-              <CardDescription>Organizations making the biggest impact</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-8">
-                {topNGOs.map((ngo, index) => (
-                  <div key={ngo.id} className="flex items-center">
-                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-muted mr-4">
-                      {index < 3 ? (
-                        <Award
-                          className={`h-4 w-4 ${index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-amber-600"}`}
-                        />
-                      ) : (
-                        <span className="text-sm font-medium">{index + 1}</span>
-                      )}
-                    </div>
-                    <Avatar className="h-10 w-10 mr-4">
-                      <AvatarImage src={ngo.avatar} alt={ngo.name} />
-                      <AvatarFallback>{ngo.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                        <div className="flex items-center">
-                          <p className="font-medium">{ngo.name}</p>
-                          {ngo.verificationStatus === "verified" && <Badge className="ml-2 text-xs">Verified</Badge>}
-                        </div>
-                        <div className="mt-2 sm:mt-0 text-right">
-                          <p className="font-bold">₹{ngo.totalRaised.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {ngo.donorsCount} donors · {ngo.campaignsCount} campaigns
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="p-6">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-3 px-4 text-left font-semibold">Rank</th>
+                    <th className="py-3 px-4 text-left font-semibold">Donor</th>
+                    <th className="py-3 px-4 text-left font-semibold">Badge</th>
+                    <th className="py-3 px-4 text-left font-semibold">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboardData[period].slice(3).map((donor) => (
+                    <tr key={donor.rank} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium">#{donor.rank}</td>
+                      <td className="py-3 px-4">{donor.name}</td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeColor(donor.badge)}`}
+                        >
+                          {getBadgeName(donor.badge)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-medium">₹{donor.amount.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-white rounded-lg shadow-sm border p-6">
+            <h2 className="text-xl font-bold mb-4">Badge Criteria</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="border rounded-lg p-4 bg-yellow-50 transform transition-all hover:shadow-md hover:-translate-y-1 duration-300">
+                <div className="flex items-center gap-3 mb-2">
+                  <Trophy className="h-5 w-5 text-yellow-500" />
+                  <h3 className="font-semibold text-yellow-700">Gold Badge</h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Awarded to donors who have contributed ₹10,000 or more daily, ₹50,000 monthly, or ₹500,000 yearly.
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              <div className="border rounded-lg p-4 bg-gray-50 transform transition-all hover:shadow-md hover:-translate-y-1 duration-300">
+                <div className="flex items-center gap-3 mb-2">
+                  <Award className="h-5 w-5 text-gray-400" />
+                  <h3 className="font-semibold text-gray-700">Silver Badge</h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Awarded to donors who have contributed between ₹3,000 and ₹9,999 daily, ₹15,000 and ₹49,999 monthly,
+                  or ₹150,000 and ₹499,999 yearly.
+                </p>
+              </div>
+              <div className="border rounded-lg p-4 bg-amber-50 transform transition-all hover:shadow-md hover:-translate-y-1 duration-300">
+                <div className="flex items-center gap-3 mb-2">
+                  <Medal className="h-5 w-5 text-amber-700" />
+                  <h3 className="font-semibold text-amber-700">Bronze Badge</h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Awarded to donors who have contributed between ₹1,000 and ₹2,999 daily, ₹5,000 and ₹14,999 monthly, or
+                  ₹50,000 and ₹149,999 yearly.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   )
 }
