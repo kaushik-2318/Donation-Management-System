@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Samarthan Kriya - NGO Donation Platform",
   description: "Connect with NGOs, support worthy causes, and help those in need",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({ children }) {

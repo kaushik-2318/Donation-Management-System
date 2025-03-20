@@ -1,14 +1,15 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default function TrendingNGOs() {
   const ngos = [
     {
       id: 1,
       name: "Clean Water Initiative",
-      description: "Providing clean water solutions to communities in need around India.",
+      description:
+        "Providing clean water solutions to communities in need around India.",
       image: "/placeholder.svg?height=200&width=300",
       donationsCount: 1245,
       campaignsCount: 8,
@@ -16,7 +17,8 @@ export default function TrendingNGOs() {
     {
       id: 2,
       name: "Education for All",
-      description: "Supporting education programs for underprivileged children in rural areas.",
+      description:
+        "Supporting education programs for underprivileged children in rural areas.",
       image: "/placeholder.svg?height=200&width=300",
       donationsCount: 987,
       campaignsCount: 5,
@@ -24,18 +26,22 @@ export default function TrendingNGOs() {
     {
       id: 3,
       name: "Wildlife Conservation Trust",
-      description: "Protecting endangered species and their habitats through conservation efforts.",
+      description:
+        "Protecting endangered species and their habitats through conservation efforts.",
       image: "/placeholder.svg?height=200&width=300",
       donationsCount: 756,
       campaignsCount: 6,
     },
-  ]
+  ];
 
   return (
     <section className="mb-16">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Trending NGOs</h2>
-        <Link href="/ngos" className="text-orange-600 hover:underline group flex items-center">
+        <Link
+          href="/ngos"
+          className="text-blue-600 hover:underline group flex items-center"
+        >
           View All
           <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
@@ -65,13 +71,14 @@ export default function TrendingNGOs() {
                 <span>{ngo.campaignsCount} campaigns</span>
               </div>
               <Link href={`/ngos/${ngo.id}`}>
-                <Button className="w-full bg-orange-600 hover:bg-orange-700">View Profile</Button>
+                <Button className="w-full text-white bg-blue-600 hover:bg-blue-700">
+                  View Profile
+                </Button>
               </Link>
             </div>
           </div>
         ))}
       </div>
     </section>
-  )
+  );
 }
-
