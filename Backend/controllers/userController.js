@@ -1,21 +1,31 @@
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const Donor = require("../models/Donor");
+const IndividualReceiver = require("../models/Receiver");
+const NGO = require("../models/Ngo");
 
 const getUserProfile = async (req, res, next) => {
   try {
-    // ✅ Only allow users to fetch their own profile (unless admin)
-    if (req.user.id !== req.params.id && req.user.role !== "admin") {
+    if (req.user.id !== req.params.id) {
       return next(
         new Error("Access denied. You can only view your own profile.")
       );
     }
 
-    const user = await User.findById(req.params.id).select("-password"); // Exclude password
+    const role = req.role;
+
+    let user;
+    if (role === "donor") {
+      user = await Donor.findById(req.params.id).select("-password");
+    }
+    else if (role === "ngo") {
+      user = await NGO.findById(req.params.id).select("-password");
+    }
+    else if (role === "receiver") {
+      user = await IndividualReceiver.findById(req.params.id).select("-password");
+    }
 
     if (!user) {
       return next(new Error("User not found."));
     }
-
     res.json(user);
   } catch (error) {
     next(error);
@@ -24,26 +34,41 @@ const getUserProfile = async (req, res, next) => {
 
 const updateUserProfile = async (req, res, next) => {
   try {
-    const { name, phone_number, password } = req.body;
+    const { name, phone_number, address, bio, avatar, organizationName, registrationNumber, website, bankDetails, reason_for_registration, id_proof } = req.body;
 
-    // ✅ Only allow users to update their own profile (unless admin)
-    if (req.user.id !== req.params.id && req.user.role !== "admin") {
-      return next(
-        new Error("Access denied. You can only update your own profile.")
-      );
+    console.log(req.body);
+
+    if (req.user.id !== req.params.id) {
+      return next(new Error("Access denied. You can only update your own profile."));
     }
 
-    const user = await User.findById(req.params.id);
+    const role = req.role;
+    let user;
+
+    if (role === "donor") {
+      user = await Donor.findById(req.params.id).select("-password");
+    } else if (role === "ngo") {
+      user = await NGO.findById(req.params.id).select("-password");
+    } else if (role === "receiver") {
+      user = await IndividualReceiver.findById(req.params.id).select("-password");
+    }
+
     if (!user) {
       return next(new Error("User not found."));
     }
 
-    // ✅ Update fields
-    if (name) user.name = name.trim();
+    if (name) user.full_name = name.trim();
     if (phone_number) user.phone_number = phone_number.trim();
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+    if (address) user.address = address.trim();
+
+    if (role === "ngo") {
+      if (organizationName) user.organizationName = organizationName.trim();
+      if (registrationNumber) user.registrationNumber = registrationNumber.trim();
+      if (website) user.website = website.trim();
+    } else if (role === "receiver") {
+      if (bankDetails) user.bank_details = bankDetails;
+      if (reason_for_registration) user.reason_for_registration = reason_for_registration.trim();
+      if (id_proof) user.id_proof = id_proof;
     }
 
     await user.save();
@@ -53,6 +78,9 @@ const updateUserProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports = updateUserProfile;
+
 
 const deleteUserAccount = async (req, res, next) => {
   try {

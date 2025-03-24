@@ -135,7 +135,7 @@ export default function LeaderboardPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="p-6 bg-orange-50 border-b">
+            <div className="p-6 bg-blue-50 border-b">
               <h2 className="text-2xl font-bold text-center mb-6">{getPeriodTitle()}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {leaderboardData[period].slice(0, 3).map((donor) => (

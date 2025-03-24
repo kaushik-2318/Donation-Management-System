@@ -134,13 +134,13 @@ export default function DonorDashboard() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Donor Dashboard</h1>
         <Link href="/campaigns">
-          <Button className="bg-orange-600 hover:bg-orange-700">Donate Now</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">Donate Now</Button>
         </Link>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : error ? (
         <div className="bg-red-50 text-red-600 p-4 rounded-md">{error}</div>
@@ -187,7 +187,7 @@ export default function DonorDashboard() {
             <LeaderboardWidget leaderboard={data.leaderboard[leaderboardPeriod]} />
 
             <Link href="/leaderboard">
-              <Button variant="outline" className="w-full mt-4 border-orange-600 text-orange-600 hover:bg-orange-50">
+              <Button variant="outline" className="w-full mt-4 border-blue-600 text-blue-600 hover:bg-blue-50">
                 View Full Leaderboard
               </Button>
             </Link>

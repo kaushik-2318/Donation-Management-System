@@ -17,6 +17,7 @@ import {
   CreditCard,
   Building2,
   HandHeart,
+  FileText,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -59,16 +60,19 @@ export default function DashboardLayout({ children, userType }) {
         { label: "Campaigns", icon: BarChart3, href: "/campaigns/manage" },
         { label: "Donors", icon: Users, href: "/donors" },
         { label: "Notifications", icon: Bell, href: "/notifications" },
+        { label: "Posts", icon: FileText, href: "/posts" },
       ],
       donor: [
         { label: "Campaigns", icon: Heart, href: "/campaigns" },
         { label: "Donations", icon: CreditCard, href: "/donations" },
         { label: "Leaderboard", icon: BarChart3, href: "/leaderboard" },
+        { label: "Posts", icon: FileText, href: "/posts" },
       ],
       receiver: [
         { label: "My Requests", icon: BarChart3, href: "/requests/manage" },
         { label: "Donors", icon: Users, href: "/donors" },
         { label: "Notifications", icon: Bell, href: "/notifications" },
+        { label: "Posts", icon: FileText, href: "/posts" },
       ],
     }
 
@@ -80,13 +84,13 @@ export default function DashboardLayout({ children, userType }) {
   const getUserIcon = () => {
     switch (userType) {
       case "ngo":
-        return <Building2 className="h-5 w-5 text-orange-600" />
+        return <Building2 className="h-5 w-5 text-blue-600" />
       case "donor":
-        return <HandHeart className="h-5 w-5 text-orange-600" />
+        return <HandHeart className="h-5 w-5 text-blue-600" />
       case "receiver":
-        return <User className="h-5 w-5 text-orange-600" />
+        return <User className="h-5 w-5 text-blue-600" />
       default:
-        return <User className="h-5 w-5 text-orange-600" />
+        return <User className="h-5 w-5 text-blue-600" />
     }
   }
 
@@ -95,7 +99,7 @@ export default function DashboardLayout({ children, userType }) {
       {/* Mobile header */}
       <header className="md:hidden bg-white shadow-sm p-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          <span className="text-xl font-bold text-orange-600">Samarthan Kriya</span>
+          <span className="text-xl font-bold text-blue-600">Samarthan Kriya</span>
         </Link>
         <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2">
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -107,18 +111,12 @@ export default function DashboardLayout({ children, userType }) {
         <aside className="hidden md:flex flex-col w-64 bg-white border-r h-screen sticky top-0">
           <div className="p-6 border-b">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-orange-600">Samarthan Kriya</span>
+              <span className="text-xl font-bold text-blue-600">Samarthan Kriya</span>
             </Link>
           </div>
 
           <div className="p-4 border-b">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src="/placeholder.svg" alt={userName} />
-                <AvatarFallback className="bg-orange-100 text-orange-800">
-                  {userName.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
               <div>
                 <p className="text-sm font-medium">{userName}</p>
                 <p className="text-xs text-gray-500 capitalize">{userType}</p>
@@ -134,8 +132,8 @@ export default function DashboardLayout({ children, userType }) {
                   <li key={index}>
                     <Link
                       href={item.href}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors ${
-                        isActive ? "bg-orange-50 text-orange-600 font-medium" : ""
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors ${
+                        isActive ? "bg-blue-50 text-blue-600 font-medium" : ""
                       }`}
                     >
                       <item.icon size={18} />
@@ -150,7 +148,7 @@ export default function DashboardLayout({ children, userType }) {
           <div className="p-4 border-t">
             <Button
               variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-orange-600 text-orange-600 hover:bg-orange-50"
+              className="w-full flex items-center justify-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
               onClick={handleLogout}
             >
               <LogOut size={18} />
@@ -165,7 +163,7 @@ export default function DashboardLayout({ children, userType }) {
             <div className="flex flex-col h-full">
               <div className="p-4 border-b flex justify-between items-center">
                 <Link href="/" className="flex items-center">
-                  <span className="text-xl font-bold text-orange-600">Samarthan Kriya</span>
+                  <span className="text-xl font-bold text-blue-600">Samarthan Kriya</span>
                 </Link>
                 <button onClick={() => setIsMobileMenuOpen(false)}>
                   <X size={24} />
@@ -176,7 +174,7 @@ export default function DashboardLayout({ children, userType }) {
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src="/placeholder.svg" alt={userName} />
-                    <AvatarFallback className="bg-orange-100 text-orange-800">
+                    <AvatarFallback className="bg-blue-100 text-blue-800">
                       {userName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -195,8 +193,8 @@ export default function DashboardLayout({ children, userType }) {
                       <li key={index}>
                         <Link
                           href={item.href}
-                          className={`flex items-center gap-3 px-3 py-3 rounded-md text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors ${
-                            isActive ? "bg-orange-50 text-orange-600 font-medium" : ""
+                          className={`flex items-center gap-3 px-3 py-3 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors ${
+                            isActive ? "bg-blue-50 text-blue-600 font-medium" : ""
                           }`}
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
@@ -212,7 +210,7 @@ export default function DashboardLayout({ children, userType }) {
               <div className="p-4 border-t">
                 <Button
                   variant="outline"
-                  className="w-full flex items-center justify-center gap-2 border-orange-600 text-orange-600 hover:bg-orange-50"
+                  className="w-full flex items-center justify-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
                   onClick={handleLogout}
                 >
                   <LogOut size={18} />

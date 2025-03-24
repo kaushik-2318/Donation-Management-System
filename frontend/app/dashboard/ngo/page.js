@@ -116,7 +116,7 @@ export default function NGODashboard() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">NGO Dashboard</h1>
         <Link href="/campaigns/create">
-          <Button className="bg-orange-600 hover:bg-orange-700">
+          <Button className="bg-blue-600 hover:bg-blue-700">
             <PlusCircle className="mr-2 h-4 w-4" />
             Create Campaign
           </Button>
@@ -125,7 +125,7 @@ export default function NGODashboard() {
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : error ? (
         <div className="bg-red-50 text-red-600 p-4 rounded-md">{error}</div>
@@ -153,14 +153,14 @@ export default function NGODashboard() {
                   <div key={campaign.id} className="border-b pb-4 last:border-0">
                     <div className="flex justify-between mb-1">
                       <span className="font-medium">{campaign.title}</span>
-                      <span className={campaign.status === "active" ? "text-green-600" : "text-orange-600"}>
+                      <span className={campaign.status === "active" ? "text-green-600" : "text-blue-600"}>
                         {campaign.status === "active" ? "Active" : "Completed"}
                       </span>
                     </div>
                     <div className="mb-2">
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-orange-600 rounded-full"
+                          className="h-full bg-blue-600 rounded-full"
                           style={{ width: `${Math.min(100, (campaign.raised / campaign.goal) * 100)}%` }}
                         ></div>
                       </div>
@@ -173,7 +173,7 @@ export default function NGODashboard() {
                 ))}
               </div>
               <Link href="/campaigns/manage">
-                <Button variant="outline" className="w-full mt-4 border-orange-600 text-orange-600 hover:bg-orange-50">
+                <Button variant="outline" className="w-full mt-4 border-blue-600 text-blue-600 hover:bg-blue-50">
                   View All Campaigns
                 </Button>
               </Link>
@@ -184,7 +184,7 @@ export default function NGODashboard() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Your Campaigns</h2>
               <Link href="/campaigns/manage">
-                <Button variant="ghost" size="sm" className="text-orange-600 hover:bg-orange-50">
+                <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
                   Manage All
                 </Button>
               </Link>

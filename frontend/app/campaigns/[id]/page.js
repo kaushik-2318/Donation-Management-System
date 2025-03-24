@@ -203,7 +203,7 @@ export default function CampaignPage({ params }) {
       <main className="flex-grow container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : campaign ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -217,14 +217,14 @@ export default function CampaignPage({ params }) {
                     height={400}
                     className="w-full h-auto object-cover"
                   />
-                  <div className="absolute top-4 right-4 bg-orange-600 text-white text-sm font-bold px-3 py-1 rounded-full">
+                  <div className="absolute top-4 right-4 bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full">
                     {campaign.daysLeft} days left
                   </div>
                 </div>
 
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {campaign.category}
                     </span>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -255,7 +255,7 @@ export default function CampaignPage({ params }) {
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-orange-600 rounded-full"
+                        className="h-full bg-blue-600 rounded-full"
                         style={{ width: `${Math.min(100, (campaign.raised / campaign.goal) * 100)}%` }}
                       ></div>
                     </div>
@@ -265,7 +265,7 @@ export default function CampaignPage({ params }) {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1 border-orange-600 text-orange-600 hover:bg-orange-50"
+                      className="flex items-center gap-1 border-blue-600 text-blue-600 hover:bg-blue-50"
                       onClick={() => {
                         navigator.clipboard.writeText(window.location.href)
                         alert("Link copied to clipboard!")
@@ -314,7 +314,7 @@ export default function CampaignPage({ params }) {
                     <ul className="space-y-2">
                       {campaign.proofDocuments.map((doc) => (
                         <li key={doc.id}>
-                          <Link href={doc.url} className="text-orange-600 hover:underline flex items-center gap-2">
+                          <Link href={doc.url} className="text-blue-600 hover:underline flex items-center gap-2">
                             <FileText className="h-4 w-4" />
                             <span>{doc.title}</span>
                             <ExternalLink className="h-4 w-4" />
@@ -369,7 +369,7 @@ export default function CampaignPage({ params }) {
                         value={donationAmount}
                         onChange={(e) => setDonationAmount(e.target.value)}
                         required
-                        className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
@@ -380,7 +380,7 @@ export default function CampaignPage({ params }) {
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                          className="border-blue-600 text-blue-600 hover:bg-blue-50"
                           onClick={() => setDonationAmount(amount.toString())}
                         >
                           ₹{amount}
@@ -388,7 +388,7 @@ export default function CampaignPage({ params }) {
                       ))}
                     </div>
 
-                    <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
                       {isSubmitting ? "Processing..." : "Donate Now"}
                     </Button>
                   </form>

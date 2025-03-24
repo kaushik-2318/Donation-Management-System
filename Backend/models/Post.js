@@ -5,6 +5,7 @@ const postSchema = new mongoose.Schema(
     author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // NGO, Receiver or admin
     title: { type: String, required: true },
     description: { type: String, required: true },
+    
     proofLink: { 
       type: String, 
       trim: true, 

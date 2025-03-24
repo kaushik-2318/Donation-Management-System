@@ -21,7 +21,7 @@ export default function CampaignsList({ campaigns }) {
           {campaigns.map((campaign) => (
             <tr key={campaign.id} className="border-b hover:bg-gray-50">
               <td className="py-3 px-4">
-                <Link href={`/campaigns/${campaign.id}`} className="text-orange-600 hover:underline">
+                <Link href={`/campaigns/${campaign.id}`} className="text-blue-600 hover:underline">
                   {campaign.title}
                 </Link>
               </td>
@@ -31,7 +31,7 @@ export default function CampaignsList({ campaigns }) {
                   className={
                     campaign.status === "active"
                       ? "bg-green-100 text-green-800 hover:bg-green-100"
-                      : "bg-orange-100 text-orange-800 hover:bg-orange-100"
+                      : "bg-blue-100 text-blue-800 hover:bg-blue-100"
                   }
                 >
                   {campaign.status === "active" ? "Active" : "Completed"}
@@ -46,14 +46,14 @@ export default function CampaignsList({ campaigns }) {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                      className="border-blue-600 text-blue-600 hover:bg-blue-50"
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
                   </Link>
                   <Link href={`/campaigns/${campaign.id}`}>
-                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
                       <Eye className="h-4 w-4 mr-1" />
                       View
                     </Button>

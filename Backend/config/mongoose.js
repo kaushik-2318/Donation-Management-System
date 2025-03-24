@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-
 // ✅ Construct MongoDB URI
 const mongoUrl =
   process.env.MONGO_ATLAS_URL;

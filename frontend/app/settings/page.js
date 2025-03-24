@@ -10,7 +10,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getSettings, updateSettings } from "@/lib/api"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { getSettings, updateSettings, changePassword, requestEmailChange, changeEmail, deleteAccount } from "@/lib/api"
+import { AlertCircle, CheckCircle, Mail, Lock, Trash } from "lucide-react"
+import Link from "next/link"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -19,12 +33,24 @@ export default function SettingsPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [activeTab, setActiveTab] = useState("account")
+  const [emailChangeStep, setEmailChangeStep] = useState(1) // 1: Request, 2: Verify OTP
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [accountSettings, setAccountSettings] = useState({
     email: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+  })
+
+  const [emailChangeData, setEmailChangeData] = useState({
+    currentPassword: "",
+    newEmail: "",
+    otp: "",
+  })
+
+  const [deleteAccountData, setDeleteAccountData] = useState({
+    password: "",
   })
 
   const [notificationSettings, setNotificationSettings] = useState({
@@ -88,6 +114,22 @@ export default function SettingsPage() {
     })
   }
 
+  const handleEmailChangeDataChange = (e) => {
+    const { name, value } = e.target
+    setEmailChangeData({
+      ...emailChangeData,
+      [name]: value,
+    })
+  }
+
+  const handleDeleteAccountDataChange = (e) => {
+    const { name, value } = e.target
+    setDeleteAccountData({
+      ...deleteAccountData,
+      [name]: value,
+    })
+  }
+
   const handleNotificationChange = (name, checked) => {
     setNotificationSettings({
       ...notificationSettings,
@@ -102,30 +144,28 @@ export default function SettingsPage() {
     })
   }
 
-  const handleSaveAccount = async (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault()
     setIsSaving(true)
     setError("")
     setSuccess("")
 
-    // Validate passwords if changing
-    if (accountSettings.newPassword) {
-      if (accountSettings.newPassword !== accountSettings.confirmPassword) {
-        setError("New passwords do not match")
-        setIsSaving(false)
-        return
-      }
+    // Validate passwords
+    if (accountSettings.newPassword !== accountSettings.confirmPassword) {
+      setError("New passwords do not match")
+      setIsSaving(false)
+      return
+    }
 
-      if (!accountSettings.currentPassword) {
-        setError("Current password is required to set a new password")
-        setIsSaving(false)
-        return
-      }
+    if (!accountSettings.currentPassword) {
+      setError("Current password is required to set a new password")
+      setIsSaving(false)
+      return
     }
 
     try {
-      await updateSettings({ account: accountSettings })
-      setSuccess("Account settings updated successfully")
+      await changePassword(accountSettings.currentPassword, accountSettings.newPassword)
+      setSuccess("Password changed successfully")
 
       // Clear password fields after successful update
       setAccountSettings({
@@ -135,9 +175,93 @@ export default function SettingsPage() {
         confirmPassword: "",
       })
     } catch (err) {
-      setError(err.message || "Failed to update account settings")
+      setError(err.message || "Failed to change password")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleRequestEmailChange = async (e) => {
+    e.preventDefault()
+    setIsSaving(true)
+    setError("")
+    setSuccess("")
+
+    if (!emailChangeData.currentPassword) {
+      setError("Current password is required to change email")
+      setIsSaving(false)
+      return
+    }
+
+    if (!emailChangeData.newEmail || !/\S+@\S+\.\S+/.test(emailChangeData.newEmail)) {
+      setError("Please enter a valid email address")
+      setIsSaving(false)
+      return
+    }
+
+    try {
+      await requestEmailChange(emailChangeData.currentPassword)
+      setSuccess("Verification code sent to your new email address")
+      setEmailChangeStep(2)
+    } catch (err) {
+      setError(err.message || "Failed to request email change")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleVerifyEmailChange = async (e) => {
+    e.preventDefault()
+    setIsSaving(true)
+    setError("")
+    setSuccess("")
+
+    if (!emailChangeData.otp) {
+      setError("Please enter the verification code")
+      setIsSaving(false)
+      return
+    }
+
+    try {
+      await changeEmail(emailChangeData.newEmail, emailChangeData.otp)
+      setSuccess("Email changed successfully")
+
+      // Update the displayed email
+      setAccountSettings({
+        ...accountSettings,
+        email: emailChangeData.newEmail,
+      })
+
+      // Reset the email change form
+      setEmailChangeData({
+        currentPassword: "",
+        newEmail: "",
+        otp: "",
+      })
+
+      setEmailChangeStep(1)
+    } catch (err) {
+      setError(err.message || "Failed to verify email change")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true)
+    setError("")
+
+    try {
+      await deleteAccount(deleteAccountData.password)
+
+      // Clear all local storage data
+      localStorage.clear()
+
+      // Redirect to home page
+      router.push("/")
+    } catch (err) {
+      setError(err.message || "Failed to delete account")
+      setIsDeleting(false)
     }
   }
 
@@ -179,13 +303,42 @@ export default function SettingsPage() {
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold mb-6">Settings</h1>
 
-          {error && <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">{error}</div>}
+          {/* Add breadcrumb navigation */}
+          <div className="mb-6">
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="inline-flex items-center space-x-1 md:space-x-3">
+                <li className="inline-flex items-center">
+                  <Link href="/" className="text-gray-700 hover:text-blue-600 inline-flex items-center">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <span className="mx-2 text-gray-400">/</span>
+                    <span className="text-gray-500">Settings</span>
+                  </div>
+                </li>
+              </ol>
+            </nav>
+          </div>
 
-          {success && <div className="bg-green-50 text-green-600 p-4 rounded-md mb-6">{success}</div>}
+          {error && (
+            <Alert className="mb-6 bg-red-50 border-red-200">
+              <AlertCircle className="h-4 w-4 text-red-500" />
+              <AlertDescription className="text-red-700">{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="mb-6 bg-green-50 border-green-200">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <AlertDescription className="text-green-700">{success}</AlertDescription>
+            </Alert>
+          )}
 
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow-md border overflow-hidden">
@@ -194,19 +347,19 @@ export default function SettingsPage() {
                   <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
                     <TabsTrigger
                       value="account"
-                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-orange-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                     >
                       Account
                     </TabsTrigger>
                     <TabsTrigger
                       value="notifications"
-                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-orange-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                     >
                       Notifications
                     </TabsTrigger>
                     <TabsTrigger
                       value="privacy"
-                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-orange-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                     >
                       Privacy
                     </TabsTrigger>
@@ -214,24 +367,92 @@ export default function SettingsPage() {
                 </div>
 
                 <TabsContent value="account" className="p-6 space-y-6">
-                  <form onSubmit={handleSaveAccount} className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={accountSettings.email}
-                        onChange={handleAccountChange}
-                        required
-                        className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-                      />
+                  <div className="space-y-6">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                      <div className="flex items-start gap-3">
+                        <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <h3 className="font-medium text-blue-900">Email Address</h3>
+                          <p className="text-sm text-blue-700 mb-2">{accountSettings.email}</p>
+                          <p className="text-xs text-blue-600">
+                            Your email is used for login and notifications. Changing it requires verification.
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="border-t pt-6">
-                      <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <Mail className="mr-2 h-5 w-5 text-gray-500" />
+                        Change Email
+                      </h3>
 
-                      <div className="space-y-4">
+                      {emailChangeStep === 1 ? (
+                        <form onSubmit={handleRequestEmailChange} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="currentPassword">Current Password</Label>
+                            <Input
+                              id="currentPassword"
+                              name="currentPassword"
+                              type="password"
+                              value={emailChangeData.currentPassword}
+                              onChange={handleEmailChangeDataChange}
+                              required
+                              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="newEmail">New Email Address</Label>
+                            <Input
+                              id="newEmail"
+                              name="newEmail"
+                              type="email"
+                              value={emailChangeData.newEmail}
+                              onChange={handleEmailChangeDataChange}
+                              required
+                              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSaving}>
+                            {isSaving ? "Sending..." : "Send Verification Code"}
+                          </Button>
+                        </form>
+                      ) : (
+                        <form onSubmit={handleVerifyEmailChange} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="otp">Verification Code</Label>
+                            <Input
+                              id="otp"
+                              name="otp"
+                              value={emailChangeData.otp}
+                              onChange={handleEmailChangeDataChange}
+                              required
+                              placeholder="Enter the 6-digit code sent to your new email"
+                              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSaving}>
+                              {isSaving ? "Verifying..." : "Verify & Change Email"}
+                            </Button>
+                            <Button type="button" variant="outline" onClick={() => setEmailChangeStep(1)}>
+                              Back
+                            </Button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <Lock className="mr-2 h-5 w-5 text-gray-500" />
+                        Change Password
+                      </h3>
+
+                      <form onSubmit={handleChangePassword} className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="currentPassword">Current Password</Label>
                           <Input
@@ -240,7 +461,8 @@ export default function SettingsPage() {
                             type="password"
                             value={accountSettings.currentPassword}
                             onChange={handleAccountChange}
-                            className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                            required
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           />
                         </div>
 
@@ -252,7 +474,8 @@ export default function SettingsPage() {
                             type="password"
                             value={accountSettings.newPassword}
                             onChange={handleAccountChange}
-                            className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                            required
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           />
                         </div>
 
@@ -264,18 +487,71 @@ export default function SettingsPage() {
                             type="password"
                             value={accountSettings.confirmPassword}
                             onChange={handleAccountChange}
-                            className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                            required
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           />
                         </div>
-                      </div>
+
+                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSaving}>
+                          {isSaving ? "Changing..." : "Change Password"}
+                        </Button>
+                      </form>
                     </div>
 
-                    <div className="flex justify-end">
-                      <Button type="submit" className="bg-orange-600 hover:bg-orange-700" disabled={isSaving}>
-                        {isSaving ? "Saving..." : "Save Changes"}
-                      </Button>
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center text-red-600">
+                        <Trash className="mr-2 h-5 w-5" />
+                        Delete Account
+                      </h3>
+
+                      <p className="text-gray-600 mb-4">
+                        Once you delete your account, there is no going back. Please be certain.
+                      </p>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                            Delete Account
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete your account and remove your
+                              data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+
+                          <div className="space-y-2 py-4">
+                            <Label htmlFor="deletePassword" className="text-red-600">
+                              Enter your password to confirm
+                            </Label>
+                            <Input
+                              id="deletePassword"
+                              name="password"
+                              type="password"
+                              value={deleteAccountData.password}
+                              onChange={handleDeleteAccountDataChange}
+                              required
+                              className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                            />
+                          </div>
+
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleDeleteAccount}
+                              className="bg-red-600 hover:bg-red-700"
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? "Deleting..." : "Delete Account"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
-                  </form>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="notifications" className="p-6 space-y-6">
@@ -288,7 +564,7 @@ export default function SettingsPage() {
                       <Switch
                         checked={notificationSettings.emailNotifications}
                         onCheckedChange={(checked) => handleNotificationChange("emailNotifications", checked)}
-                        className="data-[state=checked]:bg-orange-600"
+                        className="data-[state=checked]:bg-blue-600"
                       />
                     </div>
 
@@ -300,7 +576,7 @@ export default function SettingsPage() {
                       <Switch
                         checked={notificationSettings.smsNotifications}
                         onCheckedChange={(checked) => handleNotificationChange("smsNotifications", checked)}
-                        className="data-[state=checked]:bg-orange-600"
+                        className="data-[state=checked]:bg-blue-600"
                       />
                     </div>
 
@@ -316,7 +592,7 @@ export default function SettingsPage() {
                           <Switch
                             checked={notificationSettings.campaignUpdates}
                             onCheckedChange={(checked) => handleNotificationChange("campaignUpdates", checked)}
-                            className="data-[state=checked]:bg-orange-600"
+                            className="data-[state=checked]:bg-blue-600"
                           />
                         </div>
 
@@ -328,7 +604,7 @@ export default function SettingsPage() {
                           <Switch
                             checked={notificationSettings.donationReceipts}
                             onCheckedChange={(checked) => handleNotificationChange("donationReceipts", checked)}
-                            className="data-[state=checked]:bg-orange-600"
+                            className="data-[state=checked]:bg-blue-600"
                           />
                         </div>
 
@@ -340,7 +616,7 @@ export default function SettingsPage() {
                           <Switch
                             checked={notificationSettings.marketingEmails}
                             onCheckedChange={(checked) => handleNotificationChange("marketingEmails", checked)}
-                            className="data-[state=checked]:bg-orange-600"
+                            className="data-[state=checked]:bg-blue-600"
                           />
                         </div>
                       </div>
@@ -350,7 +626,7 @@ export default function SettingsPage() {
                   <div className="flex justify-end">
                     <Button
                       onClick={handleSaveNotifications}
-                      className="bg-orange-600 hover:bg-orange-700"
+                      className="bg-blue-600 hover:bg-blue-700"
                       disabled={isSaving}
                     >
                       {isSaving ? "Saving..." : "Save Changes"}
@@ -384,7 +660,7 @@ export default function SettingsPage() {
                       <Switch
                         checked={privacySettings.showDonationAmount}
                         onCheckedChange={(checked) => handlePrivacyChange("showDonationAmount", checked)}
-                        className="data-[state=checked]:bg-orange-600"
+                        className="data-[state=checked]:bg-blue-600"
                       />
                     </div>
 
@@ -396,17 +672,13 @@ export default function SettingsPage() {
                       <Switch
                         checked={privacySettings.showInLeaderboard}
                         onCheckedChange={(checked) => handlePrivacyChange("showInLeaderboard", checked)}
-                        className="data-[state=checked]:bg-orange-600"
+                        className="data-[state=checked]:bg-blue-600"
                       />
                     </div>
                   </div>
 
                   <div className="flex justify-end">
-                    <Button
-                      onClick={handleSavePrivacy}
-                      className="bg-orange-600 hover:bg-orange-700"
-                      disabled={isSaving}
-                    >
+                    <Button onClick={handleSavePrivacy} className="bg-blue-600 hover:bg-blue-700" disabled={isSaving}>
                       {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                   </div>

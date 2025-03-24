@@ -1,167 +1,127 @@
+const express = require("express");
+const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+
+const Donor = require("../models/Donor");
+const IndividualReceiver = require("../models/Receiver");
+const NGO = require("../models/Ngo");
+
 const transporter = require("../config/nodemailer");
 const { Verification_Email_Template } = require("../utils/emailTemplates");
 const { Welcome_Email_Template } = require("../utils/emailTemplates");
 
+//Register Controller
+const { donorRegister } = require("./auth/donor/register.controller");
+const { ngoRegister } = require("./auth/ngo/register.controller");
+const { individualRegister } = require("./auth/individualReceiver/register.controller");
+
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role, phone_number } = req.body;
-
-    // ✅ Validate required fields
-    if (!name || !email || !password || !role) {
-      res.status(400);
-      return next(new Error("All fields are required."));
+    const { role } = req.body;
+    if (!role) {
+      return next(new Error("Role is required."));
     }
-
-    // ✅ Validate role
-    const validRoles = ["admin", "ngo", "donor", "receiver"];
-    if (!validRoles.includes(role)) {
-      res.status(400);
-      return next(new Error("Invalid role provided."));
+    if (role === "donor") {
+      return donorRegister(req, res, next);
     }
-
-    normalizedEmail = email.trim().toLowerCase();
-
-    // ✅ Check if user already exists
-    const existingUser = await User.findOne({ normalizedEmail });
-    if (existingUser) {
-      res.status(400);
-      return next(new Error("Email already in use."));
+    else if (role === "ngo") {
+      return ngoRegister(req, res, next);
     }
-
-    // ✅ Validate phone number if role is "receiver"
-    if (role === "receiver" && !phone_number) {
-      res.status(400);
-      return next(new Error("Phone number is required for receivers."));
+    else if (role === "receiver") {
+      return individualRegister(req, res, next);
     }
-
-    // ✅ Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // ✅ Generate & Hash OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-    const hashedOtp = await bcrypt.hash(otp, 10);
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
-
-    // ✅ Create new user (not verified yet)
-    await User.create({
-      name,
-      email: normalizedEmail,
-      password: hashedPassword,
-      role,
-      phone_number,
-      otp: hashedOtp,
-      otpExpires,
-      isVerified: false, // Default verification status
-    });
-
-    // ✅ Send OTP via email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: normalizedEmail,
-      subject: "Verify Your Email",
-      html: Verification_Email_Template.replace("{verificationCode}", otp),
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.status(201).json({ message: "OTP sent! Please verify your email." });
   } catch (error) {
-    next(error); // ✅ Pass unexpected errors to global error handler
+    next(error);
   }
-};
+}
 
+//Login Controller
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    if (!email || !password) {
-      return next(new Error("Email and password are required."));
+    if (!email || !password || !role) {
+      return next(new Error("All Field Required."));
     }
 
-    // ✅ Normalize email before querying
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedRole = role.toLowerCase(); 
 
-    // ✅ Find user in the database
-    const user = await User.findOne({ email: normalizedEmail });
+    let user;
+
+    if (normalizedRole === "donor") {
+      user = await Donor.findOne({ email: normalizedEmail });
+    }
+    else if (normalizedRole === "ngo") {
+      user = await NGO.findOne({ email: normalizedEmail });
+    }
+    else if (normalizedRole === "receiver") {
+      user = await IndividualReceiver.findOne({ email: normalizedEmail });
+    }
 
     if (!user) {
       return next(new Error("Invalid credentials."));
     }
 
-    // ✅ Check if the user is verified
     if (!user.isVerified) {
       return next(new Error("Please verify your email before logging in."));
     }
 
-    // ✅ Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return next(new Error("Invalid credentials."));
     }
 
-    // ✅ Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRETKEY,
       { expiresIn: "7d" }
     );
 
-    // ✅ Set token in a secure HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({
+    res.status(200).json({
       message: "Login successful!",
-      token, // ✅ Return token if needed for frontend usage
+      token,
       user: {
-        id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: normalizedRole, 
       },
     });
   } catch (error) {
     next(error);
   }
-};
+}
 
-const logout = async (req, res, next) => {
-  try {
-    res.cookie("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      expires: new Date(0), // Expire the cookie immediately
-    });
-
-    res.json({ message: "Logout successful!" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-
+//Verify OTP Controller
 const verifyOtp = async (req, res, next) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp, role } = req.body;
 
-    if (!email || !otp) {
-      return next(new Error("Email and OTP are required."));
+    if (!email || !otp || !role) {
+      return next(new Error("All fields are required."));
     }
 
-    // Trim and normalize email before querying
     const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email: normalizedEmail });
+    let user;
+
+    if (role === "donor") {
+      user = await Donor.findOne({ email: normalizedEmail });
+    }
+    else if (role === "ngo") {
+      user = await NGO.findOne({ email: normalizedEmail });
+    }
+    else if (role === "receiver") {
+      user = await IndividualReceiver.findOne({ email: normalizedEmail });
+    }
 
     if (!user) return next(new Error("User not found."));
 
@@ -177,7 +137,6 @@ const verifyOtp = async (req, res, next) => {
     user.otpExpires = undefined;
     await user.save();
 
-    // ✅ Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRETKEY,
@@ -186,12 +145,11 @@ const verifyOtp = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // ✅ Use Secure=true in production
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ✅ Use None only in production
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // ✅ Send Welcome Email
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: normalizedEmail,
@@ -205,19 +163,27 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
+//Resend OTP Controller
 const resendOtp = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { email, role } = req.body;
 
     if (!email) {
       return next(new Error("Email is required."));
     }
 
-    // ✅ Normalize email before querying
     const normalizedEmail = email.trim().toLowerCase();
 
-    // ✅ Find user
-    const user = await User.findOne({ email: normalizedEmail });
+    let user;
+    if (role === "donor") {
+      user = await Donor.findOne({ email: normalizedEmail });
+    }
+    else if (role === "ngo") {
+      user = await NGO.findOne({ email: normalizedEmail });
+    }
+    else if (role === "receiver") {
+      user = await IndividualReceiver.findOne({ email: normalizedEmail });
+    }
 
     if (!user) {
       return next(new Error("User not found."));
@@ -227,17 +193,14 @@ const resendOtp = async (req, res, next) => {
       return next(new Error("User is already verified."));
     }
 
-    // ✅ Generate & Hash New OTP
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedOtp = await bcrypt.hash(newOtp, 10);
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10-minute expiry
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-    // ✅ Update OTP & Expiry Time in Database
     user.otp = hashedOtp;
     user.otpExpires = otpExpires;
     await user.save();
 
-    // ✅ Send New OTP via Email
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: normalizedEmail,
@@ -253,5 +216,20 @@ const resendOtp = async (req, res, next) => {
   }
 };
 
+//Logout Controller
+const logout = async (req, res, next) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      expires: new Date(0),
+    });
+
+    res.json({ message: "Logout successful!" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = { register, login, logout, verifyOtp, resendOtp };

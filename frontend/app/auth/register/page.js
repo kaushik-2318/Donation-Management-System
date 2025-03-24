@@ -40,7 +40,7 @@ export default function RegisterPage() {
 
   // Receiver specific fields
   const [receiverFields, setReceiverFields] = useState({
-    idProof: null,
+    idProof: "",
     bankDetails: "",
     reason: "",
   })
@@ -62,22 +62,14 @@ export default function RegisterPage() {
   }
 
   const handleReceiverFieldChange = (e) => {
-    const { name, value, type, files } = e.target
-    if (type === "file") {
-      setReceiverFields({
-        ...receiverFields,
-        [name]: files[0],
-      })
-    } else {
-      setReceiverFields({
-        ...receiverFields,
-        [name]: value,
-      })
-    }
+    const { name, value } = e.target
+    setReceiverFields({
+      ...receiverFields,
+      [name]: value,
+    })
   }
 
   const validateForm = () => {
-    // Validate common fields
     if (!commonFields.name.trim()) return "Name is required"
     if (!commonFields.email.trim()) return "Email is required"
     if (!/\S+@\S+\.\S+/.test(commonFields.email)) return "Email is invalid"
@@ -85,14 +77,10 @@ export default function RegisterPage() {
     if (commonFields.password.length < 8) return "Password must be at least 8 characters"
     if (commonFields.password !== commonFields.confirmPassword) return "Passwords do not match"
     if (!commonFields.phone.trim()) return "Phone number is required"
-
-    // Validate NGO specific fields if NGO tab is active
     if (activeTab === "ngo") {
       if (!ngoFields.organizationName.trim()) return "Organization name is required"
       if (!ngoFields.registrationNumber.trim()) return "Registration number is required"
     }
-
-    // Validate Receiver specific fields if Receiver tab is active
     if (activeTab === "receiver") {
       if (!receiverFields.reason.trim()) return "Reason for registration is required"
     }
@@ -116,7 +104,7 @@ export default function RegisterPage() {
       // Combine form data based on active tab
       const formData = {
         ...commonFields,
-        userType: activeTab,
+        role: activeTab,
       }
 
       if (activeTab === "ngo") {
@@ -125,17 +113,11 @@ export default function RegisterPage() {
         formData.receiverDetails = receiverFields
       }
 
-      // Register API call
-      const response = await register(formData)
+      await register(formData)
 
-      // Store token and user info in localStorage
-      localStorage.setItem("token", response.token)
-      localStorage.setItem("userType", response.userType)
-      localStorage.setItem("userName", response.user.name)
-
-      // Redirect to dashboard
-      router.push(`/dashboard/${response.userType.toLowerCase()}`)
+      router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}&userType=${formData.role}`)
     } catch (err) {
+      console.log(err)
       setError(err.message || "Registration failed. Please try again.")
     } finally {
       setIsLoading(false)
@@ -150,7 +132,7 @@ export default function RegisterPage() {
           <div className="bg-white rounded-lg shadow-md p-8 border">
             <div className="text-center mb-6">
               <Link href="/" className="inline-block">
-                <h1 className="text-2xl font-bold text-orange-600">Samarthan Kriya</h1>
+                <h1 className="text-2xl font-bold text-blue-600">Samarthan Kriya</h1>
               </Link>
               <h2 className="text-2xl font-bold mt-6 mb-2">Create an Account</h2>
               <p className="text-gray-600">Join our community and make a difference</p>
@@ -186,7 +168,7 @@ export default function RegisterPage() {
                       onChange={handleCommonFieldChange}
                       placeholder="John Doe"
                       required
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
@@ -200,7 +182,7 @@ export default function RegisterPage() {
                       onChange={handleCommonFieldChange}
                       placeholder="name@example.com"
                       required
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -216,7 +198,7 @@ export default function RegisterPage() {
                       onChange={handleCommonFieldChange}
                       placeholder="••••••••"
                       required
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
@@ -230,7 +212,7 @@ export default function RegisterPage() {
                       onChange={handleCommonFieldChange}
                       placeholder="••••••••"
                       required
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -246,7 +228,7 @@ export default function RegisterPage() {
                       onChange={handleCommonFieldChange}
                       placeholder="+91 98765 43210"
                       required
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
@@ -258,7 +240,7 @@ export default function RegisterPage() {
                       value={commonFields.address}
                       onChange={handleCommonFieldChange}
                       placeholder="Your address"
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -275,7 +257,7 @@ export default function RegisterPage() {
                         onChange={handleNgoFieldChange}
                         placeholder="Your NGO name"
                         required
-                        className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
@@ -288,7 +270,7 @@ export default function RegisterPage() {
                         onChange={handleNgoFieldChange}
                         placeholder="NGO registration number"
                         required
-                        className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                   </div>
@@ -303,7 +285,7 @@ export default function RegisterPage() {
                         value={ngoFields.foundedYear}
                         onChange={handleNgoFieldChange}
                         placeholder="e.g. 2010"
-                        className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
@@ -316,7 +298,7 @@ export default function RegisterPage() {
                         value={ngoFields.website}
                         onChange={handleNgoFieldChange}
                         placeholder="https://yourwebsite.org"
-                        className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                   </div>
@@ -330,7 +312,7 @@ export default function RegisterPage() {
                       onChange={handleNgoFieldChange}
                       placeholder="Tell us about your organization and its mission"
                       rows={4}
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
@@ -342,7 +324,7 @@ export default function RegisterPage() {
                       value={ngoFields.socialMedia}
                       onChange={handleNgoFieldChange}
                       placeholder="Facebook, Twitter, Instagram links"
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </TabsContent>
@@ -354,11 +336,12 @@ export default function RegisterPage() {
                     <Input
                       id="idProof"
                       name="idProof"
-                      type="file"
+                      type="text"
+                      value={receiverFields.idProof}
                       onChange={handleReceiverFieldChange}
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      placeholder="Enter your ID number (Aadhar, PAN, etc.)"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
-                    <p className="text-xs text-gray-500">Upload Aadhar Card, PAN Card, or any government ID</p>
                   </div>
 
                   <div className="space-y-2">
@@ -370,7 +353,7 @@ export default function RegisterPage() {
                       onChange={handleReceiverFieldChange}
                       placeholder="Account number, IFSC code, bank name"
                       rows={2}
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
@@ -384,12 +367,16 @@ export default function RegisterPage() {
                       placeholder="Explain why you're registering as a receiver"
                       rows={4}
                       required
-                      className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </TabsContent>
 
-                <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 mt-6" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  className="w-full text-white bg-blue-600 hover:bg-blue-700 mt-6"
+                  disabled={isLoading}
+                >
                   {isLoading ? "Creating Account..." : "Create Account"}
                 </Button>
               </form>
@@ -398,7 +385,7 @@ export default function RegisterPage() {
             <div className="mt-6 text-center">
               <p className="text-gray-600">
                 Already have an account?{" "}
-                <Link href="/auth/login" className="text-orange-600 hover:underline">
+                <Link href="/auth/login" className="text-blue-600 hover:underline">
                   Sign in
                 </Link>
               </p>
@@ -409,4 +396,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-

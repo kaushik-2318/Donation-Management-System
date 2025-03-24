@@ -1,62 +1,84 @@
-// This is a mock API implementation for demonstration purposes
-// In a real application, this would make actual API calls to your backend
+import axios from "axios";
+import api from "./axiosInstance";
+import getJWTId from "./getJWTID";
 
-// Simulated API delay
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Login API
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const API_BASE_URL = "http://localhost:4000/api";
+
+export const register = async (formData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Registration failed.");
+  }
+};
+
 export const login = async (credentials) => {
-  await delay(1000) // Simulate API call
-
-  // This is just for demonstration - in a real app, this would be validated by the server
-  if (credentials.email === "demo@example.com" && credentials.password === "password") {
-    return {
-      token: "mock-jwt-token",
-      userType: "donor", // or "ngo" or "receiver"
-      user: {
-        id: 1,
-        name: "Demo User",
-        email: "demo@example.com",
-      },
-    }
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Login failed.");
   }
+};
 
-  // For demo purposes, let's accept any credentials
-  // In a real app, this would validate against a database
-  return {
-    token: "mock-jwt-token",
-    userType: credentials.email.includes("ngo") ? "ngo" : credentials.email.includes("receiver") ? "receiver" : "donor",
-    user: {
-      id: 1,
-      name: "Demo User",
-      email: credentials.email,
-    },
+// Verify-Email OTP API Call
+export const verifyOTP = async (otp, email, role) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp, email, role });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to verify OTP");
   }
-}
+};
 
-// Register API
-export const register = async (userData) => {
-  await delay(1500) // Simulate API call
-
-  // In a real app, this would create a user in the database
-  return {
-    token: "mock-jwt-token",
-    userType: userData.userType,
-    user: {
-      id: 1,
-      name: userData.name,
-      email: userData.email,
-      userType: userData.userType,
-    },
+// Resend Verification Email API Call
+export const resendVerificationEmail = async (email, phone, role) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/resend-otp`, { email, phone, role });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to resend verification email");
   }
-}
+};
 
-// Get dashboard data
+// Get profile API
+export const getProfile = async () => {
+  await delay(500);
+  try {
+    const response = await axios.get(`${API_BASE_URL}/users/${getJWTId()}`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch profile");
+  }
+};
+
+// Update profile API
+export const updateProfile = async (profileData) => {
+  await delay(1000);
+  console.log("Profile updated:", profileData);
+  try {
+
+    await axios.put(`${API_BASE_URL}/users/${getJWTId()}`, profileData,{
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+    return { success: true };
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch profile");
+  }
+};
+
+// Get Dashboard Data API
 export const getDashboardData = async (userType) => {
-  await delay(1000) // Simulate API call
-
-  // In a real app, this would fetch actual data from the database
-  // For now, we'll return mock data based on user type
+  await delay(1000);
   switch (userType) {
     case "ngo":
       return {
@@ -122,7 +144,7 @@ export const getDashboardData = async (userType) => {
             daysLeft: 10,
           },
         ],
-      }
+      };
     case "donor":
       return {
         stats: {
@@ -176,13 +198,38 @@ export const getDashboardData = async (userType) => {
           { rank: 5, name: "Emily Davis", amount: 5000, badge: "silver" },
         ],
         badges: [
-          { id: 1, name: "First Donation", description: "Made your first donation", earned: true },
-          { id: 2, name: "Regular Donor", description: "Donated for 3 consecutive months", earned: true },
-          { id: 3, name: "Silver Supporter", description: "Donated over $1,000 in total", earned: true },
-          { id: 4, name: "Gold Supporter", description: "Donated over $5,000 in total", earned: false },
-          { id: 5, name: "Platinum Supporter", description: "Donated over $10,000 in total", earned: false },
+          {
+            id: 1,
+            name: "First Donation",
+            description: "Made your first donation",
+            earned: true,
+          },
+          {
+            id: 2,
+            name: "Regular Donor",
+            description: "Donated for 3 consecutive months",
+            earned: true,
+          },
+          {
+            id: 3,
+            name: "Silver Supporter",
+            description: "Donated over $1,000 in total",
+            earned: true,
+          },
+          {
+            id: 4,
+            name: "Gold Supporter",
+            description: "Donated over $5,000 in total",
+            earned: false,
+          },
+          {
+            id: 5,
+            name: "Platinum Supporter",
+            description: "Donated over $10,000 in total",
+            earned: false,
+          },
         ],
-      }
+      };
     case "receiver":
       return {
         stats: {
@@ -209,7 +256,8 @@ export const getDashboardData = async (userType) => {
           {
             id: 1,
             title: "Medical Treatment for Sarah",
-            description: "My daughter Sarah needs urgent medical treatment for a rare condition.",
+            description:
+              "My daughter Sarah needs urgent medical treatment for a rare condition.",
             raised: 3200,
             goal: 5000,
             status: "active",
@@ -218,7 +266,8 @@ export const getDashboardData = async (userType) => {
           {
             id: 2,
             title: "Help Rebuild Our Home After Fire",
-            description: "Our family home was destroyed in a fire. We need help to rebuild.",
+            description:
+              "Our family home was destroyed in a fire. We need help to rebuild.",
             raised: 5300,
             goal: 15000,
             status: "active",
@@ -227,7 +276,8 @@ export const getDashboardData = async (userType) => {
           {
             id: 3,
             title: "College Tuition Assistance",
-            description: "I need help with my college tuition for the upcoming semester.",
+            description:
+              "I need help with my college tuition for the upcoming semester.",
             raised: 2500,
             goal: 2500,
             status: "completed",
@@ -236,7 +286,8 @@ export const getDashboardData = async (userType) => {
           {
             id: 4,
             title: "Emergency Surgery Funds",
-            description: "I need assistance for an emergency surgery not covered by insurance.",
+            description:
+              "I need assistance for an emergency surgery not covered by insurance.",
             raised: 4000,
             goal: 4000,
             status: "completed",
@@ -245,22 +296,23 @@ export const getDashboardData = async (userType) => {
           {
             id: 5,
             title: "Support for Disability Equipment",
-            description: "Need specialized equipment to help with mobility after an accident.",
+            description:
+              "Need specialized equipment to help with mobility after an accident.",
             raised: 1500,
             goal: 1500,
             status: "completed",
             daysLeft: 0,
           },
         ],
-      }
+      };
     default:
-      return null
+      return null;
   }
-}
+};
 
 // Create campaign API
 export const createCampaign = async (campaignData) => {
-  await delay(1500) // Simulate API call
+  await delay(1500); // Simulate API call
 
   // In a real app, this would create a campaign in the database
   return {
@@ -269,12 +321,12 @@ export const createCampaign = async (campaignData) => {
     raised: 0,
     status: "active",
     createdAt: new Date().toISOString(),
-  }
-}
+  };
+};
 
 // Create donation request API
 export const createRequest = async (requestData) => {
-  await delay(1500) // Simulate API call
+  await delay(1500); // Simulate API call
 
   // In a real app, this would create a request in the database
   return {
@@ -283,12 +335,12 @@ export const createRequest = async (requestData) => {
     raised: 0,
     status: "active",
     createdAt: new Date().toISOString(),
-  }
-}
+  };
+};
 
 // Make donation API
 export const makeDonation = async (donationData) => {
-  await delay(1500) // Simulate API call
+  await delay(1500); // Simulate API call
 
   // In a real app, this would process a donation and update the database
   return {
@@ -296,12 +348,12 @@ export const makeDonation = async (donationData) => {
     ...donationData,
     status: "completed",
     createdAt: new Date().toISOString(),
-  }
-}
+  };
+};
 
 // Get leaderboard API
 export const getLeaderboard = async () => {
-  await delay(1000) // Simulate API call
+  await delay(1000); // Simulate API call
 
   // In a real app, this would fetch the leaderboard from the database
   return [
@@ -320,38 +372,12 @@ export const getLeaderboard = async () => {
     { rank: 13, name: "Elizabeth Harris", amount: 2000, badge: "bronze" },
     { rank: 14, name: "Andrew Clark", amount: 1800, badge: "bronze" },
     { rank: 15, name: "Olivia Lewis", amount: 1500, badge: "bronze" },
-  ]
-}
-
-// Get profile API
-export const getProfile = async () => {
-  await delay(500)
-
-  // Mock profile data
-  return {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+15551234567",
-    address: "123 Main St, Anytown USA",
-    bio: "Passionate about making a difference in the world.",
-    organizationName: "Helping Hands NGO",
-    registrationNumber: "123456789",
-    website: "https://helpinghands.org",
-    bankDetails: "Account: 1234567890, IFSC: ABCD0000123, Bank: Example Bank",
-  }
-}
-
-// Update profile API
-export const updateProfile = async (profileData) => {
-  await delay(1000)
-  // In a real app, this would update the profile in the database
-  console.log("Profile updated:", profileData)
-  return { success: true }
-}
+  ];
+};
 
 // Get settings API
 export const getSettings = async () => {
-  await delay(500)
+  await delay(500);
 
   // Mock settings data
   return {
@@ -370,31 +396,31 @@ export const getSettings = async () => {
       showDonationAmount: true,
       showInLeaderboard: true,
     },
-  }
-}
+  };
+};
 
 // Update settings API
 export const updateSettings = async (settingsData) => {
-  await delay(1000)
+  await delay(1000);
   // In a real app, this would update the settings in the database
-  console.log("Settings updated:", settingsData)
-  return { success: true }
-}
+  console.log("Settings updated:", settingsData);
+  return { success: true };
+};
 
 // Generate and upload receipt API
 export const generateAndUploadReceipt = async (donationData) => {
-  await delay(1500)
+  await delay(1500);
 
   // In a real app, this would generate a PDF receipt and upload it to UploadThing
   return {
     receiptUrl: `/receipts/receipt-${Math.floor(Math.random() * 1000)}.pdf`,
     donationId: donationData.id,
-  }
-}
+  };
+};
 
 // Get donations with receipts API
 export const getDonationsWithReceipts = async () => {
-  await delay(1000)
+  await delay(1000);
 
   // Mock donations with receipts
   return [
@@ -422,6 +448,5 @@ export const getDonationsWithReceipts = async () => {
       date: "2023-05-10",
       receiptUrl: "/receipts/receipt-3.pdf",
     },
-  ]
-}
-
+  ];
+};

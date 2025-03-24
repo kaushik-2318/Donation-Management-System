@@ -26,8 +26,8 @@ export default function DonationsChart({ data }) {
             {
               label: "Donations (₹)",
               data: data.map((item) => item.amount),
-              backgroundColor: "rgba(237, 137, 54, 0.5)",
-              borderColor: "rgba(237, 137, 54, 1)",
+              backgroundColor: "rgba(54, 162, 235, 0.5)", 
+              borderColor: "rgba(54, 162, 235, 1)",
               borderWidth: 1,
             },
           ],
