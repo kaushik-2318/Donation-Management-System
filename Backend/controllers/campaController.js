@@ -9,7 +9,10 @@ const createPost = async (req, res, next) => {
     // ✅ Find the user
     const author = await User.findById(authorId);
     if (!author) {
-      return next(new Error("User not found."));
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
     }
 
     // ✅ Ensure only NGOs & receivers can create posts

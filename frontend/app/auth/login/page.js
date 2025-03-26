@@ -50,7 +50,7 @@ export default function LoginPage() {
       if (returnUrl) {
         router.push(returnUrl);
       } else {
-        router.push(`/dashboard/${response.user.role.toLowerCase()}`);
+        router.push(`/dashboard`);
       }
     } catch (err) {
       setError(err.message || "Failed to login. Please check your credentials.");

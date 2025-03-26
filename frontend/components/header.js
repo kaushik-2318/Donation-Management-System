@@ -57,6 +57,9 @@ export default function Header() {
             <Link href="/campaigns" className="text-gray-700 hover:text-blue-600 transition-colors">
               Campaigns
             </Link>
+            <Link href="/requests" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Requests
+            </Link>
             <Link href="/leaderboard" className="text-gray-700 hover:text-blue-600 transition-colors">
               Leaderboard
             </Link>
@@ -140,6 +143,13 @@ export default function Header() {
                 Campaigns
               </Link>
               <Link
+                href="/requests"
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Requests
+              </Link>
+              <Link
                 href="/leaderboard"
                 className="text-gray-700 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
@@ -205,4 +215,3 @@ export default function Header() {
     </header>
   )
 }
-

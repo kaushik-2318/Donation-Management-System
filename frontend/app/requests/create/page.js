@@ -20,20 +20,12 @@ export default function CreateRequestPage() {
     endDate: "",
     category: "",
     image: null,
-    proofDocuments: [],
+    proofDocuments: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
 
-  useEffect(() => {
-    // Check if user is logged in and is a receiver
-    const token = localStorage.getItem("token")
-    const userType = localStorage.getItem("userType")
 
-    if (!token || userType !== "receiver") {
-      router.push("/auth/login")
-    }
-  }, [router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -50,11 +42,6 @@ export default function CreateRequestPage() {
         ...formData,
         image: files[0],
       })
-    } else if (name === "proofDocuments") {
-      setFormData({
-        ...formData,
-        proofDocuments: Array.from(files),
-      })
     }
   }
 
@@ -64,7 +51,6 @@ export default function CreateRequestPage() {
     setError("")
 
     try {
-      // Validate form data
       if (!formData.title.trim()) {
         throw new Error("Request title is required")
       }
@@ -80,18 +66,13 @@ export default function CreateRequestPage() {
       if (!formData.category) {
         throw new Error("Category is required")
       }
-      if (!formData.image) {
-        throw new Error("Please upload an image")
-      }
-      if (formData.proofDocuments.length === 0) {
-        throw new Error("Please upload at least one proof document")
+      if (!formData.proofDocuments.trim()) {
+        throw new Error("Please provide proof document links")
       }
 
-      // Create request API call
       const response = await createRequest(formData)
-
-      // Redirect to request page
-      router.push(`/requests/${response.id}`)
+      
+      router.push(`/requests/${response.data}`)
     } catch (err) {
       setError(err.message || "Failed to create request. Please try again.")
       console.error(err)
@@ -187,23 +168,30 @@ export default function CreateRequestPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Image</Label>
-                <Input id="image" name="image" type="file" accept="image/*" onChange={handleFileChange} required />
-                <p className="text-sm text-gray-500">Upload an image that helps explain your situation.</p>
+                <Label htmlFor="image">Image (Optional)</Label>
+                <Input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <p className="text-sm text-gray-500">Upload an image that helps explain your situation (optional).</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="proofDocuments">Proof Documents</Label>
+                <Label htmlFor="proofDocuments">Proof Documents (Drive Links)</Label>
                 <Input
                   id="proofDocuments"
                   name="proofDocuments"
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
+                  type="text"
+                  value={formData.proofDocuments}
+                  onChange={handleChange}
+                  placeholder="Paste your Google Drive sharing links here"
                   required
                 />
                 <p className="text-sm text-gray-500">
-                  Upload documents that verify your need (medical bills, school fees, etc.)
+                  Provide Google Drive links to documents that verify your need (medical bills, school fees, etc.)
                 </p>
               </div>
 

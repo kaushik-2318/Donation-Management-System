@@ -41,7 +41,7 @@ export default function ReceiverDashboard() {
     fetchData()
   }, [router])
 
-  // Sample data for demonstration
+  
   const sampleData = {
     stats: {
       totalReceived: 85000,
@@ -112,7 +112,7 @@ export default function ReceiverDashboard() {
     ],
   }
 
-  // Use sample data for demonstration
+
   const data = dashboardData || sampleData
 
   return (

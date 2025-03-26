@@ -24,13 +24,15 @@ const individualReceiverSchema = new mongoose.Schema(
         id_proof: { type: String, required: true },
         bank_details: { type: String, required: true },
         reason_for_registration: { type: String, required: true },
-
         role: { type: String, default: "receiver", enum: ["receiver"] },
         isVerified: { type: Boolean, default: false },
         otp: { type: String },
         otpExpires: { type: Date },
-
         totalReceived: { type: Number, default: 0 },
+        requests: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Request"
+        }],
     },
     { timestamps: true }
 );

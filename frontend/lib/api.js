@@ -1,84 +1,211 @@
-import axios from "axios";
-import api from "./axiosInstance";
-import getJWTId from "./getJWTID";
+import axios from "axios"
+import getJWTId from "./getJWTID"
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const API_BASE_URL = "http://localhost:4000/api";
-
+// Authentication APIs
 export const register = async (formData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
-    return response.data;
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, formData)
+    return response.data
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Registration failed.");
+    throw new Error(error.response?.data?.message || "Registration failed.")
   }
-};
+}
 
 export const login = async (credentials) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
-    return response.data;
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials)
+    return response.data
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Login failed.");
+    throw new Error(error.response?.data?.message || "Login failed.")
   }
-};
+}
 
 // Verify-Email OTP API Call
 export const verifyOTP = async (otp, email, role) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp, email, role });
-    return response.data;
+    const response = await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp, email, role })
+    return response.data
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to verify OTP");
+    throw new Error(error.response?.data?.message || "Failed to verify OTP")
   }
-};
+}
 
 // Resend Verification Email API Call
 export const resendVerificationEmail = async (email, phone, role) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/resend-otp`, { email, phone, role });
-    return response.data;
+    const response = await axios.post(`${API_BASE_URL}/auth/resend-otp`, { email, phone, role })
+    return response.data
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to resend verification email");
+    throw new Error(error.response?.data?.message || "Failed to resend verification email")
   }
-};
+}
 
-// Get profile API
+// User Profile APIs
 export const getProfile = async () => {
-  await delay(500);
+  await delay(500)
   try {
     const response = await axios.get(`${API_BASE_URL}/users/${getJWTId()}`, {
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      }
-    });
-    return response.data;
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch profile");
+    throw new Error(error.response?.data?.message || "Failed to fetch profile")
   }
-};
+}
 
-// Update profile API
 export const updateProfile = async (profileData) => {
-  await delay(1000);
-  console.log("Profile updated:", profileData);
+  await delay(1000)
+  console.log("Profile updated:", profileData)
   try {
-
-    await axios.put(`${API_BASE_URL}/users/${getJWTId()}`, profileData,{
+    await axios.put(`${API_BASE_URL}/users/${getJWTId()}`, profileData, {
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      }
-    });
-    return { success: true };
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return { success: true }
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch profile");
+    throw new Error(error.response?.data?.message || "Failed to update profile")
   }
-};
+}
 
-// Get Dashboard Data API
+// Email and Password Management
+export const changeEmail = async (newEmail, otp) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/users/change-email`,
+      { email: newEmail, otp },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to change email")
+  }
+}
+
+export const requestEmailChange = async (currentPassword) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/users/request-email-change`,
+      { currentPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to request email change")
+  }
+}
+
+export const changePassword = async (currentPassword, newPassword) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/users/change-password`,
+      { currentPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to change password")
+  }
+}
+
+export const deleteAccount = async (password) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/users/${getJWTId()}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      data: { password },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete account")
+  }
+}
+
+// Request Management APIs
+export const createRequest = async (requestData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/requests/create`, requestData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to create request")
+  }
+}
+
+export const getAllRequests = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/requests`)
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch requests")
+  }
+}
+
+export const getRequestById = async (requestId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/requests/${requestId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch request")
+  }
+}
+
+export const updateRequest = async (requestId, requestData) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/requests/${requestId}`, requestData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to update request")
+  }
+}
+
+export const deleteRequest = async (requestId) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/requests/${requestId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete request")
+  }
+}
+
+// Dashboard Data API
 export const getDashboardData = async (userType) => {
-  await delay(1000);
+  await delay(1000)
   switch (userType) {
     case "ngo":
       return {
@@ -144,7 +271,7 @@ export const getDashboardData = async (userType) => {
             daysLeft: 10,
           },
         ],
-      };
+      }
     case "donor":
       return {
         stats: {
@@ -229,7 +356,7 @@ export const getDashboardData = async (userType) => {
             earned: false,
           },
         ],
-      };
+      }
     case "receiver":
       return {
         stats: {
@@ -256,8 +383,7 @@ export const getDashboardData = async (userType) => {
           {
             id: 1,
             title: "Medical Treatment for Sarah",
-            description:
-              "My daughter Sarah needs urgent medical treatment for a rare condition.",
+            description: "My daughter Sarah needs urgent medical treatment for a rare condition.",
             raised: 3200,
             goal: 5000,
             status: "active",
@@ -266,8 +392,7 @@ export const getDashboardData = async (userType) => {
           {
             id: 2,
             title: "Help Rebuild Our Home After Fire",
-            description:
-              "Our family home was destroyed in a fire. We need help to rebuild.",
+            description: "Our family home was destroyed in a fire. We need help to rebuild.",
             raised: 5300,
             goal: 15000,
             status: "active",
@@ -276,8 +401,7 @@ export const getDashboardData = async (userType) => {
           {
             id: 3,
             title: "College Tuition Assistance",
-            description:
-              "I need help with my college tuition for the upcoming semester.",
+            description: "I need help with my college tuition for the upcoming semester.",
             raised: 2500,
             goal: 2500,
             status: "completed",
@@ -286,8 +410,7 @@ export const getDashboardData = async (userType) => {
           {
             id: 4,
             title: "Emergency Surgery Funds",
-            description:
-              "I need assistance for an emergency surgery not covered by insurance.",
+            description: "I need assistance for an emergency surgery not covered by insurance.",
             raised: 4000,
             goal: 4000,
             status: "completed",
@@ -296,88 +419,22 @@ export const getDashboardData = async (userType) => {
           {
             id: 5,
             title: "Support for Disability Equipment",
-            description:
-              "Need specialized equipment to help with mobility after an accident.",
+            description: "Need specialized equipment to help with mobility after an accident.",
             raised: 1500,
             goal: 1500,
             status: "completed",
             daysLeft: 0,
           },
         ],
-      };
+      }
     default:
-      return null;
+      return null
   }
-};
+}
 
-// Create campaign API
-export const createCampaign = async (campaignData) => {
-  await delay(1500); // Simulate API call
-
-  // In a real app, this would create a campaign in the database
-  return {
-    id: Math.floor(Math.random() * 1000),
-    ...campaignData,
-    raised: 0,
-    status: "active",
-    createdAt: new Date().toISOString(),
-  };
-};
-
-// Create donation request API
-export const createRequest = async (requestData) => {
-  await delay(1500); // Simulate API call
-
-  // In a real app, this would create a request in the database
-  return {
-    id: Math.floor(Math.random() * 1000),
-    ...requestData,
-    raised: 0,
-    status: "active",
-    createdAt: new Date().toISOString(),
-  };
-};
-
-// Make donation API
-export const makeDonation = async (donationData) => {
-  await delay(1500); // Simulate API call
-
-  // In a real app, this would process a donation and update the database
-  return {
-    id: Math.floor(Math.random() * 1000),
-    ...donationData,
-    status: "completed",
-    createdAt: new Date().toISOString(),
-  };
-};
-
-// Get leaderboard API
-export const getLeaderboard = async () => {
-  await delay(1000); // Simulate API call
-
-  // In a real app, this would fetch the leaderboard from the database
-  return [
-    { rank: 1, name: "Jane Smith", amount: 15000, badge: "gold" },
-    { rank: 2, name: "Robert Johnson", amount: 12500, badge: "gold" },
-    { rank: 3, name: "Sarah Williams", amount: 10000, badge: "gold" },
-    { rank: 4, name: "Michael Brown", amount: 7500, badge: "silver" },
-    { rank: 5, name: "Emily Davis", amount: 5000, badge: "silver" },
-    { rank: 6, name: "David Wilson", amount: 4500, badge: "silver" },
-    { rank: 7, name: "Jennifer Taylor", amount: 4000, badge: "silver" },
-    { rank: 8, name: "Christopher Martinez", amount: 3500, badge: "silver" },
-    { rank: 9, name: "Jessica Anderson", amount: 3000, badge: "bronze" },
-    { rank: 10, name: "Matthew Thomas", amount: 2800, badge: "bronze" },
-    { rank: 11, name: "Amanda Jackson", amount: 2500, badge: "bronze" },
-    { rank: 12, name: "Daniel White", amount: 2200, badge: "bronze" },
-    { rank: 13, name: "Elizabeth Harris", amount: 2000, badge: "bronze" },
-    { rank: 14, name: "Andrew Clark", amount: 1800, badge: "bronze" },
-    { rank: 15, name: "Olivia Lewis", amount: 1500, badge: "bronze" },
-  ];
-};
-
-// Get settings API
+// Other APIs
 export const getSettings = async () => {
-  await delay(500);
+  await delay(500)
 
   // Mock settings data
   return {
@@ -396,57 +453,123 @@ export const getSettings = async () => {
       showDonationAmount: true,
       showInLeaderboard: true,
     },
-  };
-};
+  }
+}
 
-// Update settings API
 export const updateSettings = async (settingsData) => {
-  await delay(1000);
+  await delay(1000)
   // In a real app, this would update the settings in the database
-  console.log("Settings updated:", settingsData);
-  return { success: true };
-};
+  console.log("Settings updated:", settingsData)
+  return { success: true }
+}
 
-// Generate and upload receipt API
-export const generateAndUploadReceipt = async (donationData) => {
-  await delay(1500);
+// Create campaign API
+export const createCampaign = async (campaignData) => {
+  await delay(1500) // Simulate API call
 
-  // In a real app, this would generate a PDF receipt and upload it to UploadThing
+  // In a real app, this would create a campaign in the database
   return {
-    receiptUrl: `/receipts/receipt-${Math.floor(Math.random() * 1000)}.pdf`,
-    donationId: donationData.id,
-  };
-};
+    id: Math.floor(Math.random() * 1000),
+    ...campaignData,
+    raised: 0,
+    status: "active",
+    createdAt: new Date().toISOString(),
+  }
+}
 
-// Get donations with receipts API
-export const getDonationsWithReceipts = async () => {
-  await delay(1000);
+// Make donation API
+export const makeDonation = async (donationData) => {
+  await delay(1500) // Simulate API call
 
-  // Mock donations with receipts
+  // In a real app, this would process a donation and update the database
+  return {
+    id: Math.floor(Math.random() * 1000),
+    ...donationData,
+    status: "completed",
+    createdAt: new Date().toISOString(),
+  }
+}
+
+// Get leaderboard API
+export const getLeaderboard = async () => {
+  await delay(1000) // Simulate API call
+
+  // In a real app, this would fetch the leaderboard from the database
   return [
-    {
-      id: 1,
-      campaign: "Clean Water for Rural Communities",
-      ngo: "Water Access Initiative",
-      amount: 5000,
-      date: "2023-03-15",
-      receiptUrl: "/receipts/receipt-1.pdf",
-    },
-    {
-      id: 2,
-      campaign: "Education Supplies for Schools",
-      ngo: "Education for All",
-      amount: 2500,
-      date: "2023-04-22",
-      receiptUrl: "/receipts/receipt-2.pdf",
-    },
-    {
-      id: 3,
-      campaign: "Healthcare for Underserved Areas",
-      ngo: "Healthcare Access Initiative",
-      amount: 7500,
-      date: "2023-05-10",
-      receiptUrl: "/receipts/receipt-3.pdf",
-    },
-  ];
-};
+    { rank: 1, name: "Jane Smith", amount: 15000, badge: "gold" },
+    { rank: 2, name: "Robert Johnson", amount: 12500, badge: "gold" },
+    { rank: 3, name: "Sarah Williams", amount: 10000, badge: "gold" },
+    { rank: 4, name: "Michael Brown", amount: 7500, badge: "silver" },
+    { rank: 5, name: "Emily Davis", amount: 5000, badge: "silver" },
+    { rank: 6, name: "David Wilson", amount: 4500, badge: "silver" },
+    { rank: 7, name: "Jennifer Taylor", amount: 4000, badge: "silver" },
+    { rank: 8, name: "Christopher Martinez", amount: 3500, badge: "silver" },
+    { rank: 9, name: "Jessica Anderson", amount: 3000, badge: "bronze" },
+    { rank: 10, name: "Matthew Thomas", amount: 2800, badge: "bronze" },
+    { rank: 11, name: "Amanda Jackson", amount: 2500, badge: "bronze" },
+    { rank: 12, name: "Daniel White", amount: 2200, badge: "bronze" },
+    { rank: 13, name: "Elizabeth Harris", amount: 2000, badge: "bronze" },
+    { rank: 14, name: "Andrew Clark", amount: 1800, badge: "bronze" },
+    { rank: 15, name: "Olivia Lewis", amount: 1500, badge: "bronze" },
+  ]
+}
+
+// Post Management APIs
+export const createPost = async (postData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/posts/create`, postData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to create post")
+  }
+}
+
+export const getAllPosts = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/posts`)
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch posts")
+  }
+}
+
+export const getPostById = async (postId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/posts/${postId}`)
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch post")
+  }
+}
+
+export const updatePost = async (postId, postData) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/posts/${postId}`, postData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to update post")
+  }
+}
+
+export const deletePost = async (postId) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/posts/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete post")
+  }
+}

@@ -41,6 +41,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/requests" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  Requests
+                </Link>
+              </li>
+              <li>
                 <Link href="/leaderboard" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Leaderboard
                 </Link>
@@ -105,4 +110,3 @@ export default function Footer() {
     </footer>
   )
 }
-
