@@ -1,3 +1,5 @@
+"use client"
+
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -5,77 +7,34 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
 import BackgroundAnimation from "@/components/background-animation"
+import { getAllCampaigns } from "@/lib/api"
+import { useEffect, useState } from "react"
 
 export default function CampaignsPage() {
-  // Sample data for demonstration
-  const campaigns = [
-    {
-      id: 1,
-      title: "Build a School in Rural Tanzania",
-      ngo: "Education for All",
-      description: "Help us build a school for 500 children in a remote village in Tanzania.",
-      image: "/placeholder.svg?height=200&width=300",
-      raised: 45000,
-      goal: 75000,
-      daysLeft: 23,
-      category: "education",
-    },
-    {
-      id: 2,
-      title: "Emergency Relief for Flood Victims",
-      ngo: "Disaster Response Network",
-      description: "Providing food, shelter, and medical aid to families affected by recent floods.",
-      image: "/placeholder.svg?height=200&width=300",
-      raised: 28500,
-      goal: 50000,
-      daysLeft: 15,
-      category: "disaster",
-    },
-    {
-      id: 3,
-      title: "Save the Coral Reefs",
-      ngo: "Ocean Conservation Alliance",
-      description: "Supporting coral reef restoration projects in the Great Barrier Reef.",
-      image: "/placeholder.svg?height=200&width=300",
-      raised: 12800,
-      goal: 30000,
-      daysLeft: 45,
-      category: "environment",
-    },
-    {
-      id: 4,
-      title: "Medical Supplies for Rural Clinics",
-      ngo: "Healthcare Access Initiative",
-      description: "Providing essential medical supplies to understaffed rural clinics.",
-      image: "/placeholder.svg?height=200&width=300",
-      raised: 18900,
-      goal: 25000,
-      daysLeft: 10,
-      category: "health",
-    },
-    {
-      id: 5,
-      title: "Clean Water Wells for Villages",
-      ngo: "Clean Water Initiative",
-      description: "Building wells to provide clean drinking water to villages without access.",
-      image: "/placeholder.svg?height=200&width=300",
-      raised: 32000,
-      goal: 40000,
-      daysLeft: 30,
-      category: "water",
-    },
-    {
-      id: 6,
-      title: "Reforestation Project in Amazon",
-      ngo: "Earth Restoration Fund",
-      description: "Planting trees to restore deforested areas in the Amazon rainforest.",
-      image: "/placeholder.svg?height=200&width=300",
-      raised: 15000,
-      goal: 50000,
-      daysLeft: 60,
-      category: "environment",
-    },
-  ]
+
+  const [campaigns, setCampaigns] = useState([])
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    const userType = localStorage.getItem("userType")
+
+    if (!token || userType !== "ngo") {
+      router.push("/auth/login")
+      return
+    }
+
+    const fetchData = async () => {
+      try {
+        const response = await getAllCampaigns();
+        setCampaigns(Array.isArray(response.campaigns) ? response.campaigns : []);
+      } catch (err) {
+        setError("Failed to load dashboard data")
+        console.error(err)
+      }
+    }
+    fetchData()
+  }, []);
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -115,7 +74,6 @@ export default function CampaignsPage() {
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-6">
-                  <div className="text-sm text-blue-600 mb-1">{campaign.ngo}</div>
                   <h3 className="text-xl font-semibold mb-2">{campaign.title}</h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{campaign.description}</p>
 
@@ -135,8 +93,11 @@ export default function CampaignsPage() {
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">{campaign.daysLeft} days left</span>
-                    <Link href={`/campaigns/${campaign.id}`}>
+                    <span className="text-sm text-gray-500">
+                      {Math.max(0, Math.ceil(campaign.duration - (new Date() - new Date(campaign.createdAt)) / (1000 * 60 * 60 * 24)))} days left
+                    </span>
+
+                    <Link href={`/campaigns/${campaign._id}`}>
                       <Button>Donate</Button>
                     </Link>
                   </div>

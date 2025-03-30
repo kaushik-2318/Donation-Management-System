@@ -31,11 +31,35 @@ const ngoSchema = new mongoose.Schema(
         website: { type: String, trim: true, default: "" },
         organization_description: { type: String, required: true, trim: true },
         social_media_links: { type: [String], default: [] },
-        isVerified: { type: Boolean, default: false }, 
+
+        isVerified: { type: Boolean, default: false },
         otp: { type: String },
         otpExpires: { type: Date },
+
+        campaigns: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Campaign"
+        }],
+
+        stats: {
+            totalDonations: { type: Number, default: 0 },
+            totalCampaigns: { type: Number, default: 0 },
+            activeCampaigns: { type: Number, default: 0 },
+            donorsCount: { type: Number, default: 0 }
+        },
+
+        monthlyDonations: [{
+            month: { type: String, enum: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] },
+            year: { type: Number },
+            amount: { type: Number, default: 0 }
+        }],
+
+        donors: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Donor"
+        }]
     },
     { timestamps: true }
 );
 
-module.exports = mongoose.model("NGO", ngoSchema);
+module.exports = mongoose.model("ngo", ngoSchema);

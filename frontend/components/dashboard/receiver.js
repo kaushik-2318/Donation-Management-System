@@ -18,14 +18,6 @@ export default function ReceiverDashboard() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    const userType = localStorage.getItem("userType")
-
-    if (!token || userType !== "receiver") {
-      router.push("/auth/login")
-      return
-    }
-
     const fetchData = async () => {
       try {
         const data = await getDashboardData("receiver")
@@ -40,80 +32,6 @@ export default function ReceiverDashboard() {
 
     fetchData()
   }, [router])
-
-  
-  const sampleData = {
-    stats: {
-      totalReceived: 85000,
-      activeRequests: 2,
-      completedRequests: 3,
-      donorsCount: 75,
-    },
-    fundsData: [
-      { month: "Jan", amount: 0 },
-      { month: "Feb", amount: 0 },
-      { month: "Mar", amount: 15000 },
-      { month: "Apr", amount: 0 },
-      { month: "May", amount: 20000 },
-      { month: "Jun", amount: 0 },
-      { month: "Jul", amount: 0 },
-      { month: "Aug", amount: 30000 },
-      { month: "Sep", amount: 0 },
-      { month: "Oct", amount: 20000 },
-      { month: "Nov", amount: 0 },
-      { month: "Dec", amount: 0 },
-    ],
-    requests: [
-      {
-        id: 1,
-        title: "Medical Treatment for Priya",
-        description: "My daughter Priya needs urgent medical treatment for a rare condition.",
-        raised: 32000,
-        goal: 50000,
-        status: "active",
-        daysLeft: 12,
-      },
-      {
-        id: 2,
-        title: "Help Rebuild Our Home After Fire",
-        description: "Our family home was destroyed in a fire. We need help to rebuild.",
-        raised: 53000,
-        goal: 150000,
-        status: "active",
-        daysLeft: 30,
-      },
-      {
-        id: 3,
-        title: "College Tuition Assistance",
-        description: "I need help with my college tuition for the upcoming semester.",
-        raised: 25000,
-        goal: 25000,
-        status: "completed",
-        daysLeft: 0,
-      },
-      {
-        id: 4,
-        title: "Emergency Surgery Funds",
-        description: "I need assistance for an emergency surgery not covered by insurance.",
-        raised: 40000,
-        goal: 40000,
-        status: "completed",
-        daysLeft: 0,
-      },
-      {
-        id: 5,
-        title: "Support for Disability Equipment",
-        description: "Need specialized equipment to help with mobility after an accident.",
-        raised: 15000,
-        goal: 15000,
-        status: "completed",
-        daysLeft: 0,
-      },
-    ],
-  }
-
-
-  const data = dashboardData || sampleData
 
   return (
     <DashboardLayout userType="receiver">
@@ -134,70 +52,83 @@ export default function ReceiverDashboard() {
       ) : error ? (
         <div className="bg-red-50 text-red-600 p-4 rounded-md">{error}</div>
       ) : (
-        <>
-          <DashboardStats
-            stats={[
-              { label: "Total Received", value: `₹${data.stats.totalReceived.toLocaleString()}` },
-              { label: "Active Requests", value: data.stats.activeRequests },
-              { label: "Completed Requests", value: data.stats.completedRequests },
-              { label: "Total Donors", value: data.stats.donorsCount },
-            ]}
-          />
+        dashboardData && (
+          <>
+            <DashboardStats
+              stats={[
+                {
+                  label: "Total Received",
+                  value: `₹${dashboardData.stats.totalReceived?.toLocaleString() || 0}`
+                },
+                {
+                  label: "Active Requests",
+                  value: dashboardData.stats.activeRequests
+                },
+                {
+                  label: "Completed Requests",
+                  value: dashboardData.stats.completedRequests
+                },
+                {
+                  label: "Total Donors",
+                  value: dashboardData.stats.donorsCount
+                },
+              ]}
+            />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border">
-              <h2 className="text-lg font-semibold mb-4">Funds Received Over Time</h2>
-              <FundsReceivedChart data={data.fundsData} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border">
+                <h2 className="text-lg font-semibold mb-4">Funds Received Over Time</h2>
+                <FundsReceivedChart data={dashboardData.fundsData} />
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <h2 className="text-lg font-semibold mb-4">Request Performance</h2>
+                <div className="space-y-4">
+                  {dashboardData.requests.slice(0, 3).map((request) => (
+                    <div key={request.id} className="border-b pb-4 last:border-0">
+                      <div className="flex justify-between mb-1">
+                        <span className="font-medium">{request.title}</span>
+                        <span className={request.status === "active" ? "text-green-600" : "text-blue-600"}>
+                          {request.status === "active" ? "Active" : "Completed"}
+                        </span>
+                      </div>
+                      <div className="mb-2">
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-600 rounded-full"
+                            style={{ width: `${Math.min(100, (request.raised / request.goal) * 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>₹{request.raised?.toLocaleString() || 0} raised</span>
+                        <span className="text-gray-500">₹{request.goal?.toLocaleString() || 0} goal</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/requests/manage">
+                  <Button variant="outline" className="w-full mt-4 border-blue-600 text-blue-600 hover:bg-blue-50">
+                    View All Requests
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h2 className="text-lg font-semibold mb-4">Request Performance</h2>
-              <div className="space-y-4">
-                {data.requests.slice(0, 3).map((request) => (
-                  <div key={request.id} className="border-b pb-4 last:border-0">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium">{request.title}</span>
-                      <span className={request.status === "active" ? "text-green-600" : "text-blue-600"}>
-                        {request.status === "active" ? "Active" : "Completed"}
-                      </span>
-                    </div>
-                    <div className="mb-2">
-                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-blue-600 rounded-full"
-                          style={{ width: `${Math.min(100, (request.raised / request.goal) * 100)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>₹{request.raised.toLocaleString()} raised</span>
-                      <span className="text-gray-500">₹{request.goal.toLocaleString()} goal</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Your Requests</h2>
+                <Link href="/requests/manage">
+                  <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
+                    Manage All
+                  </Button>
+                </Link>
               </div>
-              <Link href="/requests/manage">
-                <Button variant="outline" className="w-full mt-4 border-blue-600 text-blue-600 hover:bg-blue-50">
-                  View All Requests
-                </Button>
-              </Link>
+              <RequestsList requests={dashboardData.requests} />
             </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Your Requests</h2>
-              <Link href="/requests/manage">
-                <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
-                  Manage All
-                </Button>
-              </Link>
-            </div>
-            <RequestsList requests={data.requests} />
-          </div>
-        </>
+          </>
+        )
       )}
     </DashboardLayout>
   )
 }
-

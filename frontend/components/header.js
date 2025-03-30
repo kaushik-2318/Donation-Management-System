@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, User } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Menu, X, User, LogOut, Settings, CreditCard, FileText, LayoutDashboard, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -12,34 +13,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
+import Image from "next/image"
 
 export default function Header() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userType, setUserType] = useState(null)
-  const [userName, setUserName] = useState("")
 
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token")
     const storedUserType = localStorage.getItem("userType")
-    const storedUserName = localStorage.getItem("userName")
 
     if (token) {
       setIsLoggedIn(true)
       setUserType(storedUserType)
-      setUserName(storedUserName || "User")
     }
   }, [])
 
   const handleLogout = () => {
     localStorage.removeItem("token")
     localStorage.removeItem("userType")
-    localStorage.removeItem("userName")
     setIsLoggedIn(false)
     setUserType(null)
-    window.location.href = "/"
+    router.push("/")
   }
 
   return (
@@ -63,48 +63,75 @@ export default function Header() {
             <Link href="/leaderboard" className="text-gray-700 hover:text-blue-600 transition-colors">
               Leaderboard
             </Link>
-            <Link href="/posts" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Posts
-            </Link>
             <Link href="/about" className="text-gray-700 hover:text-blue-600 transition-colors">
               About Us
             </Link>
           </nav>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 bg-white border-red-900 border-10">
             {isLoggedIn ? (
-              <DropdownMenu>
+              <DropdownMenu className='bg-white'>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg" alt={userName} />
-                      <AvatarFallback className="bg-blue-100 text-blue-800">
-                        {userName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                  <Button variant={'default'} className="relative h-10 w-10 rounded-full outline-none border-none p-0 ring-offset-0">
+                    <Image src="./demouser.png" alt="Avatar" className="p-0 rounded-full w-full h-full border-none" width={24} height={24} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{userName}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {userType && userType.charAt(0).toUpperCase() + userType.slice(1)}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
+                  <DropdownMenuGroup className="flex gap-2 flex-col my-2">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard`}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    {userType === "receiver" && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/requests/manage">
+                          <FileText className="mr-2 h-4 w-4 my-2" />
+                          <span>My Requests</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {userType === "ngo" && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/campaigns/manage">
+                          <FileText className="mr-2 h-4 w-4 my-2" />
+                          <span>My Campaigns</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {userType === "donor" && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/donations/history">
+                          <CreditCard className="mr-2 h-4 w-4 my-2" />
+                          <span>Donation History</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={`/dashboard/${userType}`}>Dashboard</Link>
+                    <Link href="/help">
+                      <HelpCircle className="mr-2 h-4 w-4 my-2" />
+                      <span>Help & Support</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">Profile</Link>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4 my-2" />
+                    <span>Log out</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings">Settings</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
@@ -157,13 +184,6 @@ export default function Header() {
                 Leaderboard
               </Link>
               <Link
-                href="/posts"
-                className="text-gray-700 hover:text-blue-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Posts
-              </Link>
-              <Link
                 href="/about"
                 className="text-gray-700 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
@@ -175,17 +195,32 @@ export default function Header() {
             <div className="flex flex-col space-y-2">
               {isLoggedIn ? (
                 <>
-                  <Link href={`/dashboard/${userType}`} onClick={() => setIsMenuOpen(false)}>
+                  <Link href={`/dashboard`} onClick={() => setIsMenuOpen(false)}>
                     <Button variant="outline" className="w-full justify-start">
-                      <User className="mr-2 h-4 w-4" />
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
                     </Button>
                   </Link>
                   <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="outline" className="w-full justify-start">
+                      <User className="mr-2 h-4 w-4" />
                       Profile
                     </Button>
                   </Link>
+                  <Link href="/settings" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </Button>
+                  </Link>
+                  {userType === "receiver" && (
+                    <Link href="/requests/manage" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start">
+                        <FileText className="mr-2 h-4 w-4" />
+                        My Requests
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     className="w-full"
                     onClick={() => {
@@ -193,6 +228,7 @@ export default function Header() {
                       setIsMenuOpen(false)
                     }}
                   >
+                    <LogOut className="mr-2 h-4 w-4" />
                     Log out
                   </Button>
                 </>

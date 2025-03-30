@@ -12,10 +12,12 @@ import { Label } from "@/components/ui/label"
 import { getRequestById, updateRequest } from "@/lib/api"
 import BackgroundAnimation from "@/components/background-animation"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
+import getJWTId from "@/lib/getJWTID"
 
 export default function EditRequestPage() {
     const router = useRouter()
     const params = useParams()
+    const [originalData, setOriginalData] = useState({})
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -36,23 +38,23 @@ export default function EditRequestPage() {
                 setIsLoading(true)
                 const data = await getRequestById(params.id)
 
-                // For demo purposes, create mock data if the API doesn't return any
-                const requestData = data || {
+                // Store the original data from the server
+                const requestData = {
                     id: params.id,
-                    title: "Medical Treatment for Sarah",
-                    description:
-                        "My daughter Sarah needs urgent medical treatment for a rare condition that affects her immune system. The treatment is not covered by our insurance and is very expensive.",
-                    category: "medical",
-                    goal: 5000,
-                    endDate: "2023-12-30",
-                    proofDocuments: "https://drive.google.com/file/d/1234567890/view",
+                    title: data.request.title,
+                    description: data.request.description,
+                    category: data.request.category,
+                    goal: data.request.amountNeeded,
+                    endDate: data.request.endDate,
+                    proofDocuments: data.request.proofDocuments || "",
                     createdBy: {
-                        id: "user123",
+                        id: data.request.user._id,
                     },
                 }
 
-                // Format the date for the input field (YYYY-MM-DD)
-                const formattedDate = new Date(requestData.endDate).toISOString().split("T")[0]
+                setOriginalData(requestData)
+
+                const formattedDate = requestData.endDate ? new Date(requestData.endDate).toISOString().split("T")[0] : ""
 
                 setFormData({
                     title: requestData.title,
@@ -60,16 +62,13 @@ export default function EditRequestPage() {
                     goal: requestData.goal,
                     endDate: formattedDate,
                     category: requestData.category,
-                    image: null, // Can't pre-fill file inputs
-                    proofDocuments: requestData.proofDocuments || "",
+                    image: null,
+                    proofDocuments: requestData.proofDocuments,
                 })
 
-                // Check if current user is the owner
-                const userId = localStorage.getItem("userId")
-                const isOwner = userId === requestData.createdBy.id
+                const isOwner = getJWTId().id === data.request.user._id
                 setIsOwner(isOwner)
 
-                // If not the owner, redirect to the request page
                 if (!isOwner) {
                     router.push(`/requests/${params.id}`)
                 }
@@ -96,7 +95,7 @@ export default function EditRequestPage() {
 
     const handleFileChange = (e) => {
         const { name, files } = e.target
-        if (name === "image") {
+        if (name === "image" && files.length > 0) {
             setFormData({
                 ...formData,
                 image: files[0],
@@ -130,8 +129,41 @@ export default function EditRequestPage() {
                 throw new Error("Please provide proof document links")
             }
 
+            // Create a new FormData object for the request
+            const requestFormData = new FormData()
+
+            // Only add changed fields to the form data
+            if (formData.title !== originalData.title) {
+                requestFormData.append("title", formData.title)
+            }
+
+            if (formData.description !== originalData.description) {
+                requestFormData.append("description", formData.description)
+            }
+
+            if (formData.goal !== originalData.goal) {
+                requestFormData.append("amountNeeded", formData.goal)
+            }
+
+            if (formData.endDate !== new Date(originalData.endDate).toISOString().split("T")[0]) {
+                requestFormData.append("endDate", formData.endDate)
+            }
+
+            if (formData.category !== originalData.category) {
+                requestFormData.append("category", formData.category)
+            }
+
+            if (formData.proofDocuments !== originalData.proofDocuments) {
+                requestFormData.append("proofDocuments", formData.proofDocuments)
+            }
+
+            // Always append the image if it exists
+            if (formData.image) {
+                requestFormData.append("image", formData.image)
+            }
+
             // Update request API call
-            await updateRequest(params.id, formData)
+            await updateRequest(params.id, requestFormData)
 
             // Redirect to request page
             router.push(`/requests/${params.id}`)
@@ -203,7 +235,7 @@ export default function EditRequestPage() {
                                     name="title"
                                     value={formData.title}
                                     onChange={handleChange}
-                                    placeholder="Enter a clear, descriptive title"
+                                    placeholder={originalData.title || "Enter a clear, descriptive title"}
                                     required
                                 />
                             </div>
@@ -215,7 +247,7 @@ export default function EditRequestPage() {
                                     name="description"
                                     value={formData.description}
                                     onChange={handleChange}
-                                    placeholder="Explain your situation and why you need help"
+                                    placeholder={originalData.description || "Explain your situation and why you need help"}
                                     rows={6}
                                     required
                                 />
@@ -232,7 +264,7 @@ export default function EditRequestPage() {
                                         step="any"
                                         value={formData.goal}
                                         onChange={handleChange}
-                                        placeholder="Enter amount"
+                                        placeholder={originalData.goal?.toString() || "Enter amount"}
                                         required
                                     />
                                 </div>
@@ -273,7 +305,11 @@ export default function EditRequestPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="image">Image (Optional)</Label>
                                 <Input id="image" name="image" type="file" accept="image/*" onChange={handleFileChange} />
-                                <p className="text-sm text-gray-500">Upload a new image or leave empty to keep the current one.</p>
+                                <p className="text-sm text-gray-500">
+                                    {originalData.image
+                                        ? "Current image will be kept unless you upload a new one."
+                                        : "Upload an image to help illustrate your request."}
+                                </p>
                             </div>
 
                             <div className="space-y-2">
@@ -284,7 +320,7 @@ export default function EditRequestPage() {
                                     type="text"
                                     value={formData.proofDocuments}
                                     onChange={handleChange}
-                                    placeholder="Paste your Google Drive sharing links here"
+                                    placeholder={originalData.proofDocuments || "Paste your Google Drive sharing links here"}
                                     required
                                 />
                                 <p className="text-sm text-gray-500">

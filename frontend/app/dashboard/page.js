@@ -7,12 +7,16 @@ import NgoDashboard from '@/components/dashboard/ngo'
 import DonorDashboard from '@/components/dashboard/donor'
 
 export default function page() {
-    const { id, role } = getJWTId();
-    if (role === 'receiver') {
-        return <ReceiverDashboard />
-    } else if (role === 'ngo') {
-        return <NgoDashboard />
-    } else if (role === 'donor') {
-        return <DonorDashboard />
+    
+    if (typeof window !== "undefined") {
+        const { id, role } = getJWTId();
+
+        if (role === 'receiver') {
+            return <ReceiverDashboard />
+        } else if (role === 'ngo') {
+            return <NgoDashboard />
+        } else if (role === 'donor') {
+            return <DonorDashboard />
+        }
     }
 }

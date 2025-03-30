@@ -55,6 +55,8 @@ export default function RequestDetailPage() {
 
         const data = await getRequestById(params.id)
 
+        console.log(data)
+
         const requestData = {
           id: params.id,
           title: data.request.title,

@@ -18,7 +18,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // Common form fields
   const [commonFields, setCommonFields] = useState({
     name: "",
     email: "",
@@ -30,12 +29,12 @@ export default function RegisterPage() {
 
   // NGO specific fields
   const [ngoFields, setNgoFields] = useState({
-    organizationName: "",
-    registrationNumber: "",
-    foundedYear: "",
-    description: "",
+    organization_name: "",
+    registration_number: "",
+    founded_year: "",
+    organization_description: "",
     website: "",
-    socialMedia: "",
+    social_media_links: "",
   })
 
   // Receiver specific fields
@@ -78,8 +77,10 @@ export default function RegisterPage() {
     if (commonFields.password !== commonFields.confirmPassword) return "Passwords do not match"
     if (!commonFields.phone.trim()) return "Phone number is required"
     if (activeTab === "ngo") {
-      if (!ngoFields.organizationName.trim()) return "Organization name is required"
-      if (!ngoFields.registrationNumber.trim()) return "Registration number is required"
+      if (!ngoFields.organization_name.trim()) return "Organization name is required"
+      if (!ngoFields.registration_number.trim()) return "Registration number is required"
+      if (!ngoFields.founded_year) return "Founded year is required"
+      if (!ngoFields.organization_description.trim()) return "Organization description is required"
     }
     if (activeTab === "receiver") {
       if (!receiverFields.reason.trim()) return "Reason for registration is required"
@@ -103,12 +104,26 @@ export default function RegisterPage() {
     try {
       // Combine form data based on active tab
       const formData = {
-        ...commonFields,
+        full_name: commonFields.name,
+        email: commonFields.email,
+        password: commonFields.password,
+        phone_number: commonFields.phone,
+        address: commonFields.address,
         role: activeTab,
       }
 
       if (activeTab === "ngo") {
-        formData.ngoDetails = ngoFields
+        // Convert social media links string to array
+        const socialMediaArray = ngoFields.social_media_links
+          ? ngoFields.social_media_links.split(",").map((link) => link.trim())
+          : []
+
+        formData.organization_name = ngoFields.organization_name
+        formData.registration_number = ngoFields.registration_number
+        formData.founded_year = Number.parseInt(ngoFields.founded_year)
+        formData.organization_description = ngoFields.organization_description
+        formData.website = ngoFields.website || ""
+        formData.social_media_links = socialMediaArray
       } else if (activeTab === "receiver") {
         formData.receiverDetails = receiverFields
       }
@@ -240,6 +255,7 @@ export default function RegisterPage() {
                       value={commonFields.address}
                       onChange={handleCommonFieldChange}
                       placeholder="Your address"
+                      required
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
@@ -249,11 +265,11 @@ export default function RegisterPage() {
                 <TabsContent value="ngo" className="space-y-4 mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="organizationName">Organization Name</Label>
+                      <Label htmlFor="organization_name">Organization Name</Label>
                       <Input
-                        id="organizationName"
-                        name="organizationName"
-                        value={ngoFields.organizationName}
+                        id="organization_name"
+                        name="organization_name"
+                        value={ngoFields.organization_name}
                         onChange={handleNgoFieldChange}
                         placeholder="Your NGO name"
                         required
@@ -262,11 +278,11 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="registrationNumber">Registration Number</Label>
+                      <Label htmlFor="registration_number">Registration Number</Label>
                       <Input
-                        id="registrationNumber"
-                        name="registrationNumber"
-                        value={ngoFields.registrationNumber}
+                        id="registration_number"
+                        name="registration_number"
+                        value={ngoFields.registration_number}
                         onChange={handleNgoFieldChange}
                         placeholder="NGO registration number"
                         required
@@ -277,14 +293,17 @@ export default function RegisterPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="foundedYear">Founded Year</Label>
+                      <Label htmlFor="founded_year">Founded Year</Label>
                       <Input
-                        id="foundedYear"
-                        name="foundedYear"
+                        id="founded_year"
+                        name="founded_year"
                         type="number"
-                        value={ngoFields.foundedYear}
+                        min="1800"
+                        max={new Date().getFullYear()}
+                        value={ngoFields.founded_year}
                         onChange={handleNgoFieldChange}
                         placeholder="e.g. 2010"
+                        required
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
@@ -304,28 +323,30 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Organization Description</Label>
+                    <Label htmlFor="organization_description">Organization Description</Label>
                     <Textarea
-                      id="description"
-                      name="description"
-                      value={ngoFields.description}
+                      id="organization_description"
+                      name="organization_description"
+                      value={ngoFields.organization_description}
                       onChange={handleNgoFieldChange}
                       placeholder="Tell us about your organization and its mission"
                       rows={4}
+                      required
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="socialMedia">Social Media Links (Optional)</Label>
+                    <Label htmlFor="social_media_links">Social Media Links (Optional)</Label>
                     <Input
-                      id="socialMedia"
-                      name="socialMedia"
-                      value={ngoFields.socialMedia}
+                      id="social_media_links"
+                      name="social_media_links"
+                      value={ngoFields.social_media_links}
                       onChange={handleNgoFieldChange}
-                      placeholder="Facebook, Twitter, Instagram links"
+                      placeholder="Facebook, Twitter, Instagram links (comma separated)"
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
+                    <p className="text-xs text-gray-500">Enter links separated by commas</p>
                   </div>
                 </TabsContent>
 
@@ -396,3 +417,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+

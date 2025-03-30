@@ -25,10 +25,28 @@ const donorSchema = new mongoose.Schema(
     otp: { type: String },
     otpExpires: { type: Date },
 
+   
+    compaignDonations: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Campaign",
+    }],
+
+    individualDonations: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "IndividualDonation",
+    }],
+
     totalDonations: { type: Number, default: 0 },
-    totalReceived: { type: Number, default: 0 },
+    totalDonationsAmount: { type: Number, default: 0 },
+
+    totalCampaignDonations: { type: Number, default: 0 },
+    totalCampaignDonationsAmount: { type: Number, default: 0 },
+    
+    totalIndividualDonations: { type: Number, default: 0 },
+    totalIndividualDonationsAmount: { type: Number, default: 0 },
+
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Donor", donorSchema);
+module.exports = mongoose.model("donor", donorSchema);

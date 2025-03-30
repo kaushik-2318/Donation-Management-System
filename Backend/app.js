@@ -28,8 +28,10 @@ mongooseconnection();
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/requests", require("./routes/requestRoutes"));
-// app.use("/api/posts", require("./routes/postRoutes"));
-// app.use("/api/donations", require("./routes/donationRoutes"));
+app.use("/api/dashboard", require("./routes/dashboardRoutes.js"));
+app.use("/api/donations", require("./routes/donationRoutes"));
+app.use("/api/campaigns", require("./routes/campaignRoutes"));
+
 // app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
 // app.use("/api/notifications", require("./routes/notificationRoutes"));
 

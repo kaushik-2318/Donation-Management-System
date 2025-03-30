@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Donor = require("../models/Donor");
-const IndividualReceiver = require("../models/Receiver");
+const IndividualReceiver = require("../models/IndividualReceiver");
 const NGO = require("../models/Ngo");
 
 const authMiddleware = async (req, res, next) => {
@@ -16,7 +16,7 @@ const authMiddleware = async (req, res, next) => {
 
     const id = decoded.id;
     const role = decoded.role;
-    
+
     let user;
     if (role === "donor") {
       user = await Donor.findById(id).select("-password");
@@ -39,4 +39,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = {authMiddleware};
+module.exports = { authMiddleware };

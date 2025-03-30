@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const individualReceiverSchema = new mongoose.Schema(
+const IndividualReceiverSchema = new mongoose.Schema(
     {
         full_name: { type: String, required: true },
         email: {
@@ -29,12 +29,17 @@ const individualReceiverSchema = new mongoose.Schema(
         otp: { type: String },
         otpExpires: { type: Date },
         totalReceived: { type: Number, default: 0 },
+        
         requests: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Request"
+            ref: "IndividualRequest"
+        }],
+        donations: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Donation",
         }],
     },
     { timestamps: true }
 );
 
-module.exports = mongoose.model("IndividualReceiver", individualReceiverSchema);
+module.exports = mongoose.model("individualReceiver", IndividualReceiverSchema);

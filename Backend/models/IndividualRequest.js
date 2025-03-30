@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
-const request = new mongoose.Schema(
+
+const IndividualRequestSchema = new mongoose.Schema(
     {
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "IndividualReceiver",
+            ref: "individualReceiver",
             required: true
         },
         title: {
@@ -70,9 +71,14 @@ const request = new mongoose.Schema(
         status: {
             type: String,
             default: "active"
+        },
+        donor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Donor",
+            required: false
         }
     },
     { timestamps: true }
 );
 
-module.exports = mongoose.model("request", request);
+module.exports = mongoose.model("IndividualRequest", IndividualRequestSchema);

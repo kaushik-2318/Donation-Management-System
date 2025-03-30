@@ -18,7 +18,7 @@ export default function NGODashboard() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    // Check if user is logged in and is an NGO
+
     const token = localStorage.getItem("token")
     const userType = localStorage.getItem("userType")
 
@@ -42,74 +42,8 @@ export default function NGODashboard() {
     fetchData()
   }, [router])
 
-  // Sample data for demonstration
-  const sampleData = {
-    stats: {
-      totalDonations: 1250000,
-      totalCampaigns: 8,
-      activeCampaigns: 5,
-      donorsCount: 450,
-    },
-    donationsData: [
-      { month: "Jan", amount: 50000 },
-      { month: "Feb", amount: 75000 },
-      { month: "Mar", amount: 100000 },
-      { month: "Apr", amount: 80000 },
-      { month: "May", amount: 120000 },
-      { month: "Jun", amount: 150000 },
-      { month: "Jul", amount: 180000 },
-      { month: "Aug", amount: 220000 },
-      { month: "Sep", amount: 190000 },
-      { month: "Oct", amount: 140000 },
-      { month: "Nov", amount: 95000 },
-      { month: "Dec", amount: 110000 },
-    ],
-    campaigns: [
-      {
-        id: 1,
-        title: "Clean Water for Rural Communities",
-        raised: 450000,
-        goal: 750000,
-        status: "active",
-        daysLeft: 23,
-      },
-      {
-        id: 2,
-        title: "Education Supplies for Schools",
-        raised: 285000,
-        goal: 300000,
-        status: "active",
-        daysLeft: 15,
-      },
-      {
-        id: 3,
-        title: "Healthcare for Underserved Areas",
-        raised: 500000,
-        goal: 500000,
-        status: "completed",
-        daysLeft: 0,
-      },
-      {
-        id: 4,
-        title: "Community Center Renovation",
-        raised: 128000,
-        goal: 400000,
-        status: "active",
-        daysLeft: 45,
-      },
-      {
-        id: 5,
-        title: "Food Distribution Program",
-        raised: 189000,
-        goal: 250000,
-        status: "active",
-        daysLeft: 10,
-      },
-    ],
-  }
 
-  // Use sample data for demonstration
-  const data = dashboardData || sampleData
+  const data = dashboardData
 
   return (
     <DashboardLayout userType="ngo">

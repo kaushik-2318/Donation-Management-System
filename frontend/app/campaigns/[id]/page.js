@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -12,110 +12,51 @@ import Link from "next/link"
 import { Calendar, Users, Clock, Share2, Download, FileText, ExternalLink } from "lucide-react"
 import BackgroundAnimation from "@/components/background-animation"
 import { jsPDF } from "jspdf"
+import { getCampaignById } from "@/lib/api"
 
-export default function CampaignPage({ params }) {
+export default function CampaignPage() {
   const router = useRouter()
-  const [campaign, setCampaign] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const params = useParams();
+
   const [donationAmount, setDonationAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [receiptUrl, setReceiptUrl] = useState("")
 
+  const campaignId = params?.id;
+  const [campaign, setCampaign] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+
   useEffect(() => {
-    // In a real app, this would fetch the campaign from the API
-    // For demo purposes, we'll use mock data
     const fetchCampaign = async () => {
-      setIsLoading(true)
+      if (!campaignId) return;
+      setIsLoading(true);
       try {
-        // Mock campaign data
-        const mockCampaign = {
-          id: params.id,
-          title: "Build a School in Rural Rajasthan",
-          ngo: "Education for All",
-          description:
-            "Help us build a school for 500 children in a remote village in Rajasthan. This project will provide access to education for children who currently have to walk more than 10 kilometers to the nearest school.",
-          longDescription: `
-            <p>In the remote villages of Rajasthan, many children lack access to basic education due to the absence of nearby schools. This project aims to address this critical issue by building a school that will serve 500 children from five surrounding villages.</p>
-            
-            <p>The school will include:</p>
-            <ul>
-              <li>10 fully equipped classrooms</li>
-              <li>A library with books and learning materials</li>
-              <li>Clean water facilities</li>
-              <li>Sustainable solar power</li>
-              <li>Teacher accommodations to attract qualified educators</li>
-            </ul>
-            
-            <p>Your donation will directly contribute to construction costs, educational materials, and training for local teachers. This project will not only provide immediate educational opportunities but will create a lasting impact for generations to come.</p>
-            
-            <p>We have partnered with local community leaders and the Rajasthan State Education Department to ensure the school meets all standards and will be properly maintained after construction.</p>
-          `,
-          image: "/placeholder.svg?height=400&width=800",
-          raised: 450000,
-          goal: 750000,
-          daysLeft: 23,
-          donorsCount: 320,
-          category: "education",
-          location: "Jaipur District, Rajasthan",
-          updates: [
-            {
-              id: 1,
-              date: "2023-02-15",
-              title: "Land Secured for School Construction",
-              content:
-                "We're excited to announce that we've secured the land for the school construction. The local community has generously donated 5 acres of land for this project.",
-            },
-            {
-              id: 2,
-              date: "2023-04-10",
-              title: "Architectural Plans Finalized",
-              content:
-                "The architectural plans for the school have been finalized and approved by the local authorities. Construction will begin next month.",
-            },
-          ],
-          proofDocuments: [
-            {
-              id: 1,
-              title: "Land Deed",
-              url: "#",
-            },
-            {
-              id: 2,
-              title: "Construction Permits",
-              url: "#",
-            },
-            {
-              id: 3,
-              title: "Budget Breakdown",
-              url: "#",
-            },
-          ],
-        }
-
-        setCampaign(mockCampaign)
+        const response = await getCampaignById(campaignId);
+        setCampaign(response.campaign);
       } catch (err) {
-        console.error(err)
+        console.error("Error fetching campaign:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchCampaign()
-  }, [params.id])
+    fetchCampaign();
+  }, [campaignId]);
+
 
   const generateReceipt = async (donationData) => {
-    // Create a new PDF document
     const doc = new jsPDF()
-
-    // Add content to the PDF
-    doc.setFontSize(20)
-    doc.text("Donation Receipt", 105, 20, { align: "center" })
 
     doc.setFontSize(12)
     doc.text("Samarthan Kriya", 105, 30, { align: "center" })
-    doc.text("123 Charity Lane, New Delhi, India", 105, 35, { align: "center" })
+    doc.text("KIIT University", 105, 35, { align: "center" })
+
+    doc.setFontSize(20)
+    doc.text("Receipt", 105, 20, { align: "center" })
+
 
     doc.line(20, 40, 190, 40)
 
@@ -136,7 +77,6 @@ export default function CampaignPage({ params }) {
     doc.text("Thank you for your generous donation!", 105, 165, { align: "center" })
     doc.text("This receipt is generated for tax purposes.", 105, 175, { align: "center" })
 
-    // Save the PDF
     const pdfBlob = doc.output("blob")
 
     // In a real app, this would upload the PDF to UploadThing
@@ -160,15 +100,12 @@ export default function CampaignPage({ params }) {
     }
 
     try {
-      // Check if user is logged in
       const token = localStorage.getItem("token")
       if (!token) {
-        // Redirect to login page with return URL
         router.push(`/auth/login?returnUrl=/campaigns/${params.id}`)
         return
       }
 
-      // Make donation API call
       const donationData = {
         campaignId: params.id,
         amount: Number.parseFloat(donationAmount),
@@ -177,7 +114,6 @@ export default function CampaignPage({ params }) {
 
       await makeDonation(donationData)
 
-      // Generate and "upload" receipt
       const receiptUrl = await generateReceipt(donationData)
 
       setSuccess(`Thank you for your donation of ₹${donationAmount}! A receipt has been generated.`)
@@ -218,7 +154,8 @@ export default function CampaignPage({ params }) {
                     className="w-full h-auto object-cover"
                   />
                   <div className="absolute top-4 right-4 bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full">
-                    {campaign.daysLeft} days left
+                    {Math.max(0, Math.ceil(campaign.duration - (new Date() - new Date(campaign.createdAt)) / (1000 * 60 * 60 * 24)))} days left
+
                   </div>
                 </div>
 
@@ -240,7 +177,9 @@ export default function CampaignPage({ params }) {
                   <div className="flex flex-wrap gap-6 text-sm text-gray-500 mb-6">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      <span>{campaign.daysLeft} days left</span>
+                      <span>
+                        {Math.max(0, Math.ceil(campaign.duration - (new Date() - new Date(campaign.createdAt)) / (1000 * 60 * 60 * 24)))} days left
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
@@ -250,8 +189,8 @@ export default function CampaignPage({ params }) {
 
                   <div className="mb-4">
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium">₹{campaign.raised.toLocaleString()} raised</span>
-                      <span className="text-gray-500">of ₹{campaign.goal.toLocaleString()} goal</span>
+                      <span className="font-medium">₹{campaign.raised} raised</span>
+                      <span className="text-gray-500">of ₹{campaign.goal} goal</span>
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
@@ -285,36 +224,14 @@ export default function CampaignPage({ params }) {
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm border overflow-hidden mb-8">
-                <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Updates</h2>
-                  {campaign.updates.length > 0 ? (
-                    <div className="space-y-6">
-                      {campaign.updates.map((update) => (
-                        <div key={update.id} className="border-b pb-6 last:border-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Clock className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm text-gray-500">{new Date(update.date).toLocaleDateString()}</span>
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2">{update.title}</h3>
-                          <p className="text-gray-700">{update.content}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">No updates yet.</p>
-                  )}
-                </div>
-              </div>
-
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                 <div className="p-6">
                   <h2 className="text-xl font-bold mb-4">Proof & Documentation</h2>
-                  {campaign.proofDocuments.length > 0 ? (
+                  {Array.isArray(campaign?.proofDocuments) && campaign?.proofDocuments?.length > 0 ? (
                     <ul className="space-y-2">
-                      {campaign.proofDocuments.map((doc) => (
-                        <li key={doc.id}>
-                          <Link href={doc.url} className="text-blue-600 hover:underline flex items-center gap-2">
+                      {campaign?.proofDocuments?.map((doc) => (
+                        <li key={doc._id}>
+                          <Link href={doc.link} className="text-blue-600 hover:underline flex items-center gap-2">
                             <FileText className="h-4 w-4" />
                             <span>{doc.title}</span>
                             <ExternalLink className="h-4 w-4" />
@@ -388,7 +305,7 @@ export default function CampaignPage({ params }) {
                       ))}
                     </div>
 
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isSubmitting}>
                       {isSubmitting ? "Processing..." : "Donate Now"}
                     </Button>
                   </form>

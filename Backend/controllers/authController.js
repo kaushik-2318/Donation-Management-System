@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const Donor = require("../models/Donor");
-const IndividualReceiver = require("../models/Receiver");
+const IndividualReceiver = require("../models/IndividualReceiver");
 const NGO = require("../models/Ngo");
 
 const transporter = require("../config/nodemailer");
@@ -46,7 +46,7 @@ const login = async (req, res, next) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const normalizedRole = role.toLowerCase(); 
+    const normalizedRole = role.toLowerCase();
 
     let user;
 
@@ -92,7 +92,7 @@ const login = async (req, res, next) => {
       user: {
         name: user.name,
         email: user.email,
-        role: normalizedRole, 
+        role: normalizedRole,
       },
     });
   } catch (error) {

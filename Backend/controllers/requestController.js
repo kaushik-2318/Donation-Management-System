@@ -1,10 +1,9 @@
-const Receiver = require('../models/Receiver');
-const Request = require('../models/Request');
+const individualReceiver = require('../models/IndividualReceiver');
+const IndividualRequest = require('../models/IndividualRequest');
 
 const createRequest = async (req, res) => {
-
-    const { title, description, goal, endDate, category, image, proofDocuments } = req.body;
     try {
+        const { title, description, goal, endDate, category, image, proofDocuments } = req.body;
 
         if (!title || !description || !goal || !endDate || !category || !proofDocuments) {
             return res.status(400).json({
@@ -15,7 +14,7 @@ const createRequest = async (req, res) => {
 
         const userId = req.user.id;
 
-        const receiver = await Receiver.findById(userId);
+        const receiver = await individualReceiver.findById(userId);
 
         if (!receiver) {
             return res.status(404).json({
@@ -31,7 +30,7 @@ const createRequest = async (req, res) => {
             });
         }
 
-        const request = await Request.create({
+        const request = await IndividualRequest.create({
             user: receiver._id,
             title,
             description,
@@ -50,6 +49,7 @@ const createRequest = async (req, res) => {
             data: request.id
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             status: 'error',
             message: error.message
@@ -57,11 +57,10 @@ const createRequest = async (req, res) => {
     }
 };
 
-
 const getAllRequests = async (req, res) => {
     try {
-        const requests = await Request.find({ isActive: true });
-        
+        const requests = await IndividualRequest.find({ isActive: true });
+
         res.status(200).json({
             status: 'success',
             data: requests
@@ -77,7 +76,8 @@ const getAllRequests = async (req, res) => {
 
 const getRequestById = async (req, res, next) => {
     try {
-        const request = await Request.findById(req.params.id).populate('user', 'full_name address');
+        
+        const request = await IndividualRequest.findById(req.params.id).populate('user', 'full_name address');
 
         if (!request) {
             return next(new Error("Request not found."));

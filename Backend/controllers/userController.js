@@ -1,5 +1,5 @@
 const Donor = require("../models/Donor");
-const IndividualReceiver = require("../models/Receiver");
+const IndividualReceiver = require("../models/IndividualReceiver");
 const NGO = require("../models/Ngo");
 
 const getUserProfile = async (req, res, next) => {

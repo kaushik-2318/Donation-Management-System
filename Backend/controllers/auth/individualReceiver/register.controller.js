@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const User = require("../../../models/Receiver");
+const User = require("../../../models/IndividualReceiver");
 const transporter = require("../../../config/nodemailer");
 const { Verification_Email_Template } = require("../../../utils/emailTemplates");
 
