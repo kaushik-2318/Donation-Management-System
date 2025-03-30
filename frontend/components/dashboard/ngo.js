@@ -106,7 +106,7 @@ export default function NGODashboard() {
                   </div>
                 ))}
               </div>
-              <Link href="/campaigns/manage">
+              <Link href="/manage">
                 <Button variant="outline" className="w-full mt-4 border-blue-600 text-blue-600 hover:bg-blue-50">
                   View All Campaigns
                 </Button>
@@ -117,7 +117,7 @@ export default function NGODashboard() {
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Your Campaigns</h2>
-              <Link href="/campaigns/manage">
+              <Link href="/manage">
                 <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
                   Manage All
                 </Button>

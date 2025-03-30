@@ -59,8 +59,6 @@ const getAllCampaigns = async (req, res, next) => {
 
 const getCampaignById = async (req, res, next) => {
     try {
-
-
         const campaign = await Campaign.findById(req.params.id);
 
         if (!campaign) {
@@ -73,7 +71,6 @@ const getCampaignById = async (req, res, next) => {
     }
 };
 
-// ✅ Update Campaign
 const updateCampaign = async (req, res, next) => {
     try {
         if (!isValidObjectId(req.params.id)) {
@@ -107,7 +104,7 @@ const updateCampaign = async (req, res, next) => {
     }
 };
 
-// ✅ Delete Campaign
+
 const deleteCampaign = async (req, res, next) => {
     try {
         if (!isValidObjectId(req.params.id)) {
@@ -133,10 +130,33 @@ const deleteCampaign = async (req, res, next) => {
     }
 };
 
+const manageCampaigns = async (req, res, next) => {
+    try {
+        const ngoId = req.user.id;
+
+        const ngo = await Ngo.findById(ngoId)
+
+
+        if (!ngo) {
+            res.status(404);
+            return next(new Error("NGO not found"));
+        }
+        const campaigns = await Campaign.find({ ngo: ngoId })
+        
+       
+        res.status(200).json(campaigns);
+    } catch (error) {
+        console.error("Dashboard error:", error);
+        next(error);
+    }
+};
+
+
 module.exports = {
     createCampaign,
     getAllCampaigns,
     getCampaignById,
     updateCampaign,
     deleteCampaign,
+    manageCampaigns,
 };

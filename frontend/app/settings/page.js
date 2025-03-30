@@ -68,7 +68,6 @@ export default function SettingsPage() {
   })
 
   useEffect(() => {
-    // Check if user is logged in
     const token = localStorage.getItem("token")
 
     if (!token) {
@@ -253,11 +252,7 @@ export default function SettingsPage() {
 
     try {
       await deleteAccount(deleteAccountData.password)
-
-      // Clear all local storage data
       localStorage.clear()
-
-      // Redirect to home page
       router.push("/")
     } catch (err) {
       setError(err.message || "Failed to delete account")

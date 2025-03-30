@@ -41,9 +41,8 @@ const CampaignSchema = new mongoose.Schema({
         link: { type: String, required: true }
     }],
     donors: [{
-        // type: mongoose.Schema.Types.ObjectId,
-        // ref: "Donor",
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Donor",
     }],
     status: {
         type: String,

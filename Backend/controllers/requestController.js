@@ -76,7 +76,7 @@ const getAllRequests = async (req, res) => {
 
 const getRequestById = async (req, res, next) => {
     try {
-        
+
         const request = await IndividualRequest.findById(req.params.id).populate('user', 'full_name address');
 
         if (!request) {
@@ -130,10 +130,14 @@ const updateRequest = async (req, res, next) => {
 
 const deleteRequest = async (req, res, next) => {
     try {
-        const request = await Request.findByIdAndDelete(req.params.id);
+        const request = await IndividualRequest.findByIdAndDelete(req.params.id);
 
         if (!request) {
             return next(new Error("Request not found."));
+        }
+
+        if (request.user.toString() !== req.user.id) {
+            return next(new Error("Access denied. You can only delete your own request."));
         }
 
         res.status(200).json({

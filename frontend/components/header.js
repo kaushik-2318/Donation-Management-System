@@ -16,6 +16,7 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
+import { logout } from "@/lib/api"
 
 export default function Header() {
   const router = useRouter()
@@ -24,7 +25,6 @@ export default function Header() {
   const [userType, setUserType] = useState(null)
 
   useEffect(() => {
-    // Check if user is logged in
     const token = localStorage.getItem("token")
     const storedUserType = localStorage.getItem("userType")
 
@@ -34,12 +34,17 @@ export default function Header() {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("userType")
-    setIsLoggedIn(false)
-    setUserType(null)
-    router.push("/")
+  const handleLogout = async () => {
+    try {
+      await logout()
+      localStorage.removeItem("token")
+      localStorage.removeItem("userType")
+      setIsLoggedIn(false)
+      setUserType(null)
+      router.push("/")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   return (
@@ -106,7 +111,7 @@ export default function Header() {
                     )}
                     {userType === "ngo" && (
                       <DropdownMenuItem asChild>
-                        <Link href="/campaigns/manage">
+                        <Link href="/manage">
                           <FileText className="mr-2 h-4 w-4 my-2" />
                           <span>My Campaigns</span>
                         </Link>

@@ -28,6 +28,7 @@ const getUserProfile = async (req, res, next) => {
     }
     res.json(user);
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
@@ -84,20 +85,37 @@ module.exports = updateUserProfile;
 
 const deleteUserAccount = async (req, res, next) => {
   try {
-    // ✅ Only allow users to delete their own account (unless admin)
-    if (req.user.id !== req.params.id && req.user.role !== "admin") {
+    if (req.user.id !== req.params.id) {
       return next(
-        new Error("Access denied. You can only delete your own account.")
+        new Error("Access denied. You can only view your own profile.")
       );
     }
 
-    const user = await User.findById(req.params.id);
+    const { password } = req.body;
+
+    const role = req.role;
+
+    let user;
+    if (role === "donor") {
+      user = await Donor.findById(req.params.id)
+    }
+    else if (role === "ngo") {
+      user = await NGO.findById(req.params.id)
+    }
+    else if (role === "receiver") {
+      user = await IndividualReceiver.findById(req.params.id)
+    }
+
     if (!user) {
       return next(new Error("User not found."));
     }
 
-    await user.deleteOne();
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      return next(new Error("Incorrect password."));
+    }
 
+    await user.deleteOne();
     res.json({ message: "User account deleted successfully!" });
   } catch (error) {
     next(error);

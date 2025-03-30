@@ -76,11 +76,6 @@ export default function Footer() {
                   Terms of Service
                 </Link>
               </li>
-              <li>
-                <Link href="/cookies" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  Cookie Policy
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -89,15 +84,15 @@ export default function Footer() {
             <ul className="space-y-2 text-gray-600">
               <li className="flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>contact@samarthankriya.org</span>
+                <span>samarthan.kriya@gmail.com</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-4 w-4 mr-2" />
-                <span>+91 98765 43210</span>
+                <span>+91 70717 71587</span>
               </li>
               <li className="flex items-start">
                 <MapPin className="h-4 w-4 mr-2 mt-1" />
-                <span>123 Charity Lane, New Delhi, India</span>
+                <span>KIIT University</span>
               </li>
             </ul>
           </div>

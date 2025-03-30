@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,8 @@ import { resendVerificationEmail, verifyOTP, updatePhone } from "@/lib/api"
 import BackgroundAnimation from "@/components/background-animation"
 import { CheckCircle, AlertCircle, ArrowLeft, RefreshCw, ShieldCheck } from "lucide-react"
 
-export default function VerifyOTPPage() {
+// Component that uses useSearchParams
+function VerifyOTPForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const email = searchParams.get("email") || ""
@@ -112,161 +113,135 @@ export default function VerifyOTPPage() {
         }
     }
 
-    // const handleChangePhone = async (e) => {
-    //     e.preventDefault()
-    //     setError("")
-
-    //     if (!newPhone.trim()) {
-    //         setError("Please enter a valid phone number")
-    //         return
-    //     }
-    //     try {
-    //         await updatePhone(email, newPhone)
-    //         router.push(
-    //             `/auth/verify-otp?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(newPhone)}&userType=${userType}`,
-    //         )
-    //     } catch (err) {
-    //         setError(err.message || "Failed to update phone number. Please try again.")
-    //     }
-    // }
-
     // If verification is successful
     if (verificationStatus === "success") {
         return (
-            <div className="min-h-screen flex flex-col">
-                <BackgroundAnimation />
-                <div className="flex-grow flex items-center justify-center p-4">
-                    <div className="w-full max-w-md">
-                        <div className="bg-white rounded-lg shadow-md p-8 border text-center">
-                            <div className="flex justify-center mb-6">
-                                <CheckCircle className="h-16 w-16 text-green-500" />
-                            </div>
-                            <h2 className="text-2xl font-bold mb-4">Verification Successful!</h2>
-                            <p className="text-gray-600 mb-6">
-                                Your account has been verified successfully. You will be redirected to your Login shortly.
-                            </p>
-                        </div>
-                    </div>
+            <div className="bg-white rounded-lg shadow-md p-8 border text-center">
+                <div className="flex justify-center mb-6">
+                    <CheckCircle className="h-16 w-16 text-green-500" />
                 </div>
+                <h2 className="text-2xl font-bold mb-4">Verification Successful!</h2>
+                <p className="text-gray-600 mb-6">
+                    Your account has been verified successfully. You will be redirected to your Login shortly.
+                </p>
             </div>
         )
     }
 
     // Default view - OTP verification
     return (
-        <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
-            <div className="flex-grow flex items-center justify-center p-4">
-                <div className="w-full max-w-md">
-                    <div className="bg-white rounded-lg shadow-md p-8 border">
-                        <div className="text-center mb-6">
-                            <Link href="/" className="inline-block">
-                                <h1 className="text-2xl font-bold text-blue-600">Samarthan Kriya</h1>
-                            </Link>
-                        </div>
+        <div className="bg-white rounded-lg shadow-md p-8 border">
+            <div className="text-center mb-6">
+                <Link href="/" className="inline-block">
+                    <h1 className="text-2xl font-bold text-blue-600">Samarthan Kriya</h1>
+                </Link>
+            </div>
 
-                        <div className="flex justify-center mb-6">
-                            <div className="bg-blue-100 p-4 rounded-full">
-                                <ShieldCheck className="h-12 w-12 text-blue-600" />
-                            </div>
-                        </div>
-
-                        <h2 className="text-2xl font-bold text-center mb-2">Verify Your Account</h2>
-                        <p className="text-gray-600 text-center mb-6">
-                            We've sent a 6-digit OTP to your {phone ? "phone" : "email"}{" "}
-                            <span className="font-medium">{phone || email}</span>. Please enter the code below to verify your account.
-                        </p>
-
-                        {error && (
-                            <Alert className="mb-4 bg-red-50 border-red-200 flex gap-3 justify-start items-center">
-                                <AlertCircle className="h-4 w-4 text-red-500" />
-                                <AlertDescription className="text-red-700">{error}</AlertDescription>
-                            </Alert>
-                        )}
-
-                        {resendStatus === "success" && (
-                            <Alert className="mb-4 bg-green-50 border-green-200 flex gap-3 justify-start items-center">
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                <AlertDescription className="text-green-700">
-                                    OTP has been resent successfully. Please check your {phone ? "phone" : "email"}.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        <div className="mb-6">
-                            <Label htmlFor="otp-input" className="sr-only">
-                                Enter OTP
-                            </Label>
-                            <div className="flex justify-between gap-2" onPaste={handlePaste}>
-                                {otp.map((digit, index) => (
-                                    <Input
-                                        key={index}
-                                        ref={(el) => (inputRefs.current[index] = el)}
-                                        type="text"
-                                        inputMode="numeric"
-                                        maxLength={1}
-                                        value={digit}
-                                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                                        onKeyDown={(e) => handleKeyDown(index, e)}
-                                        className="w-12 h-12 text-center text-xl font-bold border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* {showChangePhone ? (
-                            <form onSubmit={handleChangePhone} className="space-y-4 mb-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="newPhone">New Phone Number</Label>
-                                    <Input
-                                        id="newPhone"
-                                        type="tel"
-                                        value={newPhone}
-                                        onChange={(e) => setNewPhone(e.target.value)}
-                                        placeholder="Enter your new phone number"
-                                        required
-                                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                    />
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                                        Update Phone
-                                    </Button>
-                                    <Button type="button" variant="outline" className="flex-1" onClick={() => setShowChangePhone(false)}>
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </form>
-                        ) : (
-                        
-                        )} */}
-
-                        <div className="space-y-4 mb-6">
-                            <Button
-                                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2 text-white"
-                                onClick={handleResendOTP}
-                                disabled={isResending || countdown > 0}
-                            >
-                                <RefreshCw className="h-4 w-4" />
-                                {isResending ? "Sending..." : countdown > 0 ? `Resend OTP in ${countdown}s` : "Resend OTP"}
-                            </Button>
-                            {phone && (
-                                <Button variant="outline" className="w-full" onClick={() => setShowChangePhone(true)}>
-                                    Change Phone Number
-                                </Button>
-                            )}
-                        </div>
-
-                        <div className="text-center">
-                            <Link href="/auth/register" className="text-blue-600 hover:underline inline-flex items-center gap-1">
-                                <ArrowLeft className="h-4 w-4" />
-                                Back to Registration
-                            </Link>
-                        </div>
-                    </div>
+            <div className="flex justify-center mb-6">
+                <div className="bg-blue-100 p-4 rounded-full">
+                    <ShieldCheck className="h-12 w-12 text-blue-600" />
                 </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-center mb-2">Verify Your Account</h2>
+            <p className="text-gray-600 text-center mb-6">
+                We've sent a 6-digit OTP to your {phone ? "phone" : "email"}{" "}
+                <span className="font-medium">{phone || email}</span>. Please enter the code below to verify your account.
+            </p>
+
+            {error && (
+                <Alert className="mb-4 bg-red-50 border-red-200 flex gap-3 justify-start items-center">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <AlertDescription className="text-red-700">{error}</AlertDescription>
+                </Alert>
+            )}
+
+            {resendStatus === "success" && (
+                <Alert className="mb-4 bg-green-50 border-green-200 flex gap-3 justify-start items-center">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <AlertDescription className="text-green-700">
+                        OTP has been resent successfully. Please check your {phone ? "phone" : "email"}.
+                    </AlertDescription>
+                </Alert>
+            )}
+
+            <div className="mb-6">
+                <Label htmlFor="otp-input" className="sr-only">
+                    Enter OTP
+                </Label>
+                <div className="flex justify-between gap-2" onPaste={handlePaste}>
+                    {otp.map((digit, index) => (
+                        <Input
+                            key={index}
+                            ref={(el) => (inputRefs.current[index] = el)}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpChange(index, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(index, e)}
+                            className="w-12 h-12 text-center text-xl font-bold border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <div className="space-y-4 mb-6">
+                <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2 text-white"
+                    onClick={handleResendOTP}
+                    disabled={isResending || countdown > 0}
+                >
+                    <RefreshCw className="h-4 w-4" />
+                    {isResending ? "Sending..." : countdown > 0 ? `Resend OTP in ${countdown}s` : "Resend OTP"}
+                </Button>
+                {phone && (
+                    <Button variant="outline" className="w-full" onClick={() => setShowChangePhone(true)}>
+                        Change Phone Number
+                    </Button>
+                )}
+            </div>
+
+            <div className="text-center">
+                <Link href="/auth/register" className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Registration
+                </Link>
             </div>
         </div>
     )
 }
 
+// Fallback component
+function VerifyOTPFallback() {
+    return (
+        <div className="bg-white rounded-lg shadow-md p-8 border text-center">
+            <div className="animate-pulse">
+                <div className="h-12 w-12 bg-gray-200 rounded-full mx-auto mb-6"></div>
+                <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-full mb-6"></div>
+                <div className="flex justify-between gap-2 mb-6">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="w-12 h-12 bg-gray-200 rounded"></div>
+                    ))}
+                </div>
+                <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
+            </div>
+        </div>
+    )
+}
+
+export default function VerifyOTPPage() {
+    return (
+        <div className="min-h-screen flex flex-col">
+            <BackgroundAnimation />
+            <div className="flex-grow flex items-center justify-center p-4">
+                <div className="w-full max-w-md">
+                    <Suspense fallback={<VerifyOTPFallback />}>
+                        <VerifyOTPForm />
+                    </Suspense>
+                </div>
+            </div>
+        </div>
+    )
+}

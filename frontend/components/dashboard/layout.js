@@ -57,10 +57,8 @@ export default function DashboardLayout({ children, userType }) {
 
     const userSpecificItems = {
       ngo: [
-        { label: "Campaigns", icon: BarChart3, href: "/campaigns/manage" },
-        { label: "Donors", icon: Users, href: "/donors" },
+        { label: "Campaigns", icon: BarChart3, href: "/manage" },
         { label: "Notifications", icon: Bell, href: "/notifications" },
-        { label: "Posts", icon: FileText, href: "/posts" },
       ],
       donor: [
         { label: "Campaigns", icon: Heart, href: "/campaigns" },

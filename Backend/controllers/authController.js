@@ -11,7 +11,6 @@ const transporter = require("../config/nodemailer");
 const { Verification_Email_Template } = require("../utils/emailTemplates");
 const { Welcome_Email_Template } = require("../utils/emailTemplates");
 
-//Register Controller
 const { donorRegister } = require("./auth/donor/register.controller");
 const { ngoRegister } = require("./auth/ngo/register.controller");
 const { individualRegister } = require("./auth/individualReceiver/register.controller");
@@ -36,7 +35,6 @@ const register = async (req, res, next) => {
   }
 }
 
-//Login Controller
 const login = async (req, res, next) => {
   try {
     const { email, password, role } = req.body;
@@ -100,7 +98,6 @@ const login = async (req, res, next) => {
   }
 }
 
-//Verify OTP Controller
 const verifyOtp = async (req, res, next) => {
   try {
     const { email, otp, role } = req.body;
@@ -163,7 +160,6 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
-//Resend OTP Controller
 const resendOtp = async (req, res, next) => {
   try {
     const { email, role } = req.body;
@@ -216,7 +212,6 @@ const resendOtp = async (req, res, next) => {
   }
 };
 
-//Logout Controller
 const logout = async (req, res, next) => {
   try {
     res.cookie("token", "", {
@@ -225,6 +220,8 @@ const logout = async (req, res, next) => {
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       expires: new Date(0),
     });
+
+    await Blacklist.create({ token: req.cookies.token });
 
     res.json({ message: "Logout successful!" });
   } catch (error) {

@@ -295,36 +295,47 @@ export default function ProfilePage() {
 
               <Tabs defaultValue="personal" value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="border-b">
-                  <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
-                    <TabsTrigger
-                      value="personal"
-                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                    >
-                      Personal Info
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="social"
-                      className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                    >
-                      Social Media
-                    </TabsTrigger>
-                    {userType === "ngo" && (
+                  {userType === "ngo" ? (
+                    // For NGO users, don't render the social media TabsTrigger
+                    <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
+                      <TabsTrigger
+                        value="personal"
+                        className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                      >
+                        Personal Info
+                      </TabsTrigger>
                       <TabsTrigger
                         value="organization"
                         className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                       >
                         Organization
                       </TabsTrigger>
-                    )}
-                    {userType === "receiver" && (
+                    </TabsList>
+                  ) : (
+                    // For other users, render all tabs
+                    <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
                       <TabsTrigger
-                        value="verification"
+                        value="personal"
                         className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                       >
-                        Verification
+                        Personal Info
                       </TabsTrigger>
-                    )}
-                  </TabsList>
+                      <TabsTrigger
+                        value="social"
+                        className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                      >
+                        Social Media
+                      </TabsTrigger>
+                      {userType === "receiver" && (
+                        <TabsTrigger
+                          value="verification"
+                          className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                        >
+                          Verification
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
+                  )}
                 </div>
 
                 <form onSubmit={handleSubmit}>
@@ -365,6 +376,23 @@ export default function ProfilePage() {
                         className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
+
+                    {userType === "ngo" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="website" className="flex items-center">
+                          <Globe className="mr-2 h-4 w-4 text-green-600" /> Website
+                        </Label>
+                        <Input
+                          id="website"
+                          name="website"
+                          type="url"
+                          placeholder="https://yourwebsite.com"
+                          value={profileData.website || ""}
+                          onChange={handleChange}
+                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="bio">Bio</Label>
@@ -501,18 +529,6 @@ export default function ProfilePage() {
                             className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           />
                         </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="website">Organization Website</Label>
-                        <Input
-                          id="website"
-                          name="website"
-                          type="url"
-                          value={profileData.website || ""}
-                          onChange={handleChange}
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        />
                       </div>
                     </TabsContent>
                   )}

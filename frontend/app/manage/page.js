@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { getDashboardData, deleteRequest } from "@/lib/api"
+import { getManageCampaigns, deleteRequest } from "@/lib/api"
 import { ChevronLeft, MoreVertical, Edit, Trash2, Eye, Plus } from "lucide-react"
 
 export default function ManageRequestsPage() {
@@ -42,21 +42,21 @@ export default function ManageRequestsPage() {
                 setIsLoading(true)
                 const storedUserType = localStorage.getItem("userType")
                 setUserType(storedUserType)
-                
+
+                // Only receivers can manage requests
                 if (storedUserType !== "ngo") {
                     router.push("/dashboard")
                     return
                 }
 
-                const dashboardData = await getDashboardData("ngo")
-                
+                const dashboardData = await getManageCampaigns()
                 console.log(dashboardData)
-                return
-                // if (dashboardData && dashboardData.requests) {
-                //     setRequests(dashboardData.requests)
-                //     setActiveRequests(dashboardData.requests.filter((req) => req.status === "active"))
-                //     setCompletedRequests(dashboardData.requests.filter((req) => req.status === "completed"))
-                // }
+
+                if (dashboardData) {
+                    setRequests(dashboardData)
+                    setActiveRequests(dashboardData?.filter((req) => req.status === "active"))
+                    setCompletedRequests(dashboardData?.filter((req) => req.status === "completed"))
+                }
             } catch (err) {
                 setError("Failed to load your requests. Please try again later.")
                 console.error(err)
@@ -152,7 +152,7 @@ export default function ManageRequestsPage() {
                             </Button>
                             <h1 className="text-3xl font-bold">Manage Your Requests</h1>
                         </div>
-                        <Link href="/requests/create">
+                        <Link href="/campaigns/create">
                             <Button>
                                 <Plus className="h-4 w-4 mr-2" />
                                 Create New Request
@@ -166,7 +166,7 @@ export default function ManageRequestsPage() {
                         <div className="text-center py-12 bg-white rounded-lg shadow-sm border">
                             <h2 className="text-2xl font-bold mb-2">No Requests Found</h2>
                             <p className="text-gray-600 mb-6">You haven't created any donation requests yet.</p>
-                            <Link href="/requests/create">
+                            <Link href="/campaigns/create">
                                 <Button>Create Your First Request</Button>
                             </Link>
                         </div>
@@ -265,7 +265,6 @@ export default function ManageRequestsPage() {
     )
 }
 
-// Request Card Component
 function RequestCard({ request, setDeleteRequestId, formatDate, calculateProgress, getStatusBadge }) {
     const progress = calculateProgress(request.raised, request.goal)
 
@@ -291,14 +290,14 @@ function RequestCard({ request, setDeleteRequestId, formatDate, calculateProgres
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                                <Link href={`/requests/${request.id}`}>
+                                <Link href={`/campaigns/${request._id}`}>
                                     <Eye className="h-4 w-4 mr-2" />
                                     View
                                 </Link>
                             </DropdownMenuItem>
                             {request.status === "active" && (
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/requests/${request.id}/edit`}>
+                                    <Link href={`/campaigns/${request._id}/edit`}>
                                         <Edit className="h-4 w-4 mr-2" />
                                         Edit
                                     </Link>
@@ -330,7 +329,7 @@ function RequestCard({ request, setDeleteRequestId, formatDate, calculateProgres
             <CardFooter className="pt-0 flex justify-between text-sm text-gray-500">
                 <span>
                     {request.status === "active"
-                        ? `${request.daysLeft} days left`
+                        ? `${Math.max(0, Math.ceil(request.duration - (new Date() - new Date(request.createdAt)) / (1000 * 60 * 60 * 24)))} days left`
                         : `Completed on ${formatDate(request.endDate || new Date())}`}
                 </span>
                 <span>{request.donorsCount || 0} donors</span>
