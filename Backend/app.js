@@ -8,7 +8,6 @@ const errorHandler = require("./middlewares/errorMiddleware");
 
 const app = express();
 
-// ✅ CORS Configuration (Allow only specific origins for security)
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "*", // Allow frontend requests
@@ -32,6 +31,7 @@ app.use("/api/dashboard", require("./routes/dashboardRoutes.js"));
 app.use("/api/donations", require("./routes/donationRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 
+// TODO: Uncomment when routes are implemented
 // app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
 // app.use("/api/notifications", require("./routes/notificationRoutes"));
 
