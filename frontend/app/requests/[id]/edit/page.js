@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { getRequestById, updateRequest } from "@/lib/api"
 import BackgroundAnimation from "@/components/background-animation"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
-import getJWTId from "@/lib/getJWTID"
+import getJWTId from "@/lib/getJWTId"
 
 export default function EditRequestPage() {
     const router = useRouter()
