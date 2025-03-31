@@ -9,7 +9,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 
 const corsOptions = {
-  origin: `${process.env.CLIENT_URL}`,
+  origin: `${process.env.CLIENT_URL}` || "http://localhost:3000",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
