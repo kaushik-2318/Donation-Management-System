@@ -7,12 +7,15 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "*",
-    credentials: true,
-  })
-);
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://samarthankriya.vercel.app",
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type,Authorization",
+  credentials: true
+}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
