@@ -378,20 +378,61 @@ export default function ProfilePage() {
                     </div>
 
                     {userType === "ngo" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="website" className="flex items-center">
-                          <Globe className="mr-2 h-4 w-4 text-green-600" /> Website
-                        </Label>
-                        <Input
-                          id="website"
-                          name="website"
-                          type="url"
-                          placeholder="https://yourwebsite.com"
-                          value={profileData.website || ""}
-                          onChange={handleChange}
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        />
-                      </div>
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="website" className="flex items-center">
+                            <Globe className="mr-2 h-4 w-4 text-green-600" /> Website
+                          </Label>
+                          <Input
+                            id="website"
+                            name="website"
+                            type="url"
+                            placeholder="https://yourwebsite.com"
+                            value={profileData.website || ""}
+                            onChange={handleChange}
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="social_media" className="flex items-center">
+                            <Facebook className="mr-2 h-4 w-4 text-blue-600" /> Social Media URL
+                          </Label>
+                          <Input
+                            id="social_media"
+                            name="social_media"
+                            type="url"
+                            placeholder="https://facebook.com/yourorganization"
+                            value={profileData.social_media?.url || ""}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                social_media: {
+                                  ...profileData.social_media,
+                                  url: e.target.value,
+                                },
+                              })
+                            }
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          />
+                          <p className="text-xs text-gray-500">Enter your primary social media profile URL</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="foundation_year">Foundation Year</Label>
+                          <Input
+                            id="foundation_year"
+                            name="foundation_year"
+                            type="number"
+                            min="1800"
+                            max={new Date().getFullYear()}
+                            placeholder="e.g. 2010"
+                            value={profileData.foundation_year || ""}
+                            onChange={handleChange}
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+                      </>
                     )}
 
                     <div className="space-y-2">
@@ -591,4 +632,3 @@ export default function ProfilePage() {
     </div>
   )
 }
-

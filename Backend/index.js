@@ -26,6 +26,7 @@ app.use("/api/dashboard", require("./routes/dashboardRoutes.js"));
 app.use("/api/donations", require("./routes/donationRoutes.js"));
 app.use("/api/requests", require("./routes/requestRoutes.js"));
 app.use("/api/campaigns", require("./routes/campaignRoutes.js"));
+app.use("/api/settings", require("./routes/settingsRoutes.js"));
 
 // TODO: Uncomment when routes are implemented
 // app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));

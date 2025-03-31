@@ -57,7 +57,10 @@ const ngoSchema = new mongoose.Schema(
         donors: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Donor"
-        }]
+        }],
+
+        newEmailRequest: { type: Boolean, default: false },
+        newEmail: { type: String, default: "" },
     },
     { timestamps: true }
 );

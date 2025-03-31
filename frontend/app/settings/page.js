@@ -68,6 +68,7 @@ export default function SettingsPage() {
   })
 
   useEffect(() => {
+    // Check if user is logged in
     const token = localStorage.getItem("token")
 
     if (!token) {
@@ -149,7 +150,6 @@ export default function SettingsPage() {
     setError("")
     setSuccess("")
 
-    // Validate passwords
     if (accountSettings.newPassword !== accountSettings.confirmPassword) {
       setError("New passwords do not match")
       setIsSaving(false)
@@ -161,12 +161,10 @@ export default function SettingsPage() {
       setIsSaving(false)
       return
     }
-
     try {
       await changePassword(accountSettings.currentPassword, accountSettings.newPassword)
       setSuccess("Password changed successfully")
 
-      // Clear password fields after successful update
       setAccountSettings({
         ...accountSettings,
         currentPassword: "",
@@ -199,7 +197,7 @@ export default function SettingsPage() {
     }
 
     try {
-      await requestEmailChange(emailChangeData.currentPassword)
+      await requestEmailChange(emailChangeData.currentPassword, emailChangeData.newEmail)
       setSuccess("Verification code sent to your new email address")
       setEmailChangeStep(2)
     } catch (err) {
@@ -225,13 +223,11 @@ export default function SettingsPage() {
       await changeEmail(emailChangeData.newEmail, emailChangeData.otp)
       setSuccess("Email changed successfully")
 
-      // Update the displayed email
       setAccountSettings({
         ...accountSettings,
         email: emailChangeData.newEmail,
       })
 
-      // Reset the email change form
       setEmailChangeData({
         currentPassword: "",
         newEmail: "",
@@ -249,7 +245,6 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true)
     setError("")
-
     try {
       await deleteAccount(deleteAccountData.password)
       localStorage.clear()
@@ -264,6 +259,8 @@ export default function SettingsPage() {
     setIsSaving(true)
     setError("")
     setSuccess("")
+    
+    console.log("Saving notification settings:", notificationSettings)
 
     try {
       await updateSettings({ notifications: notificationSettings })
@@ -279,6 +276,8 @@ export default function SettingsPage() {
     setIsSaving(true)
     setError("")
     setSuccess("")
+
+    console.log("Saving privacy settings:", privacySettings)
 
     try {
       await updateSettings({ privacy: privacySettings })
@@ -687,4 +686,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

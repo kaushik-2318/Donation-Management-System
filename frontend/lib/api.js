@@ -83,6 +83,74 @@ export const updateProfile = async (profileData) => {
   }
 }
 
+export const getSettings = async () => {
+  await delay(500)
+  try {
+    const response = await axios.get(`${API_BASE_URL}/settings`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch settings")
+  }
+
+}
+
+export const changePassword = async (currentPassword, newPassword) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/settings/password`,
+      { currentPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to change password")
+  }
+}
+
+export const requestEmailChange = async (currentPassword, newEmail) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/settings/request-email-change`,
+      { currentPassword, newEmail },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.response?.data?.message || "Failed to request email change")
+  }
+}
+
+export const changeEmail = async (newEmail, otp) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/settings/email`,
+      { email: newEmail, otp },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to change email")
+  }
+}
+
+
 export const deleteAccount = async (password) => {
   try {
     const response = await axios.delete(`${API_BASE_URL}/profile/${getJWTId().id}`, {
@@ -97,137 +165,6 @@ export const deleteAccount = async (password) => {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-export const changeEmail = async (newEmail, otp) => {
-  try {
-    const response = await axios.put(
-      `${API_BASE_URL}/users/change-email`,
-      { email: newEmail, otp },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      },
-    )
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to change email")
-  }
-}
-
-export const requestEmailChange = async (currentPassword) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/users/request-email-change`,
-      { currentPassword },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      },
-    )
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to request email change")
-  }
-}
-
-export const changePassword = async (currentPassword, newPassword) => {
-  try {
-    const response = await axios.put(
-      `${API_BASE_URL}/users/change-password`,
-      { currentPassword, newPassword },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      },
-    )
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to change password")
-  }
-}
-
-
-
-// Request Management APIs
-export const createRequest = async (requestData) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/requests/create`, requestData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        // "Content-Type": "multipart/form-data",
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to create request")
-  }
-}
-
-export const getRequestById = async (requestId) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/requests/${requestId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch request")
-  }
-}
-
-export const getAllRequests = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/requests`)
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch requests")
-  }
-}
-
-
-
-export const updateRequest = async (requestId, requestData) => {
-  try {
-    const response = await axios.put(`${API_BASE_URL}/requests/${requestId}`, requestData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to update request")
-  }
-}
-
-export const deleteRequest = async (requestId) => {
-  try {
-    const response = await axios.delete(`${API_BASE_URL}/requests/${requestId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to delete request")
-  }
-}
-
-// Dashboard Data API
 export const getDashboardData = async (userType) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/dashboard/${userType}`, {
@@ -286,33 +223,85 @@ export const getManageCampaigns = async () => {
 }
 
 
-export const getSettings = async () => {
-  await delay(500)
-  return {
-    account: {
-      email: "john.doe@example.com",
-    },
-    notifications: {
-      emailNotifications: true,
-      smsNotifications: false,
-      campaignUpdates: true,
-      donationReceipts: true,
-      marketingEmails: false,
-    },
-    privacy: {
-      profileVisibility: "public",
-      showDonationAmount: true,
-      showInLeaderboard: true,
-    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Request Management APIs
+export const createRequest = async (requestData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/requests/create`, requestData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to create request")
   }
 }
 
-export const updateSettings = async (settingsData) => {
-  await delay(1000)
-  // In a real app, this would update the settings in the database
-  console.log("Settings updated:", settingsData)
-  return { success: true }
+export const getRequestById = async (requestId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/requests/${requestId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch request")
+  }
 }
+
+export const getAllRequests = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/requests`)
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch requests")
+  }
+}
+
+export const updateRequest = async (requestId, requestData) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/requests/${requestId}`, requestData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to update request")
+  }
+}
+
+export const deleteRequest = async (requestId) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/requests/${requestId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete request")
+  }
+}
+
+
 
 
 export const makeDonation = async (donationData) => {
@@ -329,7 +318,16 @@ export const makeDonation = async (donationData) => {
   }
 }
 
-// Get leaderboard API
+
+
+//TODO: After notifcation service is implemented, update the settings in the database
+export const updateSettings = async (settingsData) => {
+  await delay(1000)
+  // In a real app, this would update the settings in the database
+  console.log("Settings updated:", settingsData)
+  return { success: true }
+}
+//TODO: After leaderboard service is implemented, update the leaderboard from the database
 export const getLeaderboard = async () => {
   await delay(1000) // Simulate API call
 
@@ -351,64 +349,4 @@ export const getLeaderboard = async () => {
     { rank: 14, name: "Andrew Clark", amount: 1800, badge: "bronze" },
     { rank: 15, name: "Olivia Lewis", amount: 1500, badge: "bronze" },
   ]
-}
-
-// Post Management APIs
-export const createPost = async (postData) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/posts/create`, postData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to create post")
-  }
-}
-
-export const getAllPosts = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/posts`)
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch posts")
-  }
-}
-
-export const getPostById = async (postId) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/posts/${postId}`)
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch post")
-  }
-}
-
-export const updatePost = async (postId, postData) => {
-  try {
-    const response = await axios.put(`${API_BASE_URL}/posts/${postId}`, postData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to update post")
-  }
-}
-
-export const deletePost = async (postId) => {
-  try {
-    const response = await axios.delete(`${API_BASE_URL}/posts/${postId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-    return response.data
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to delete post")
-  }
 }
