@@ -1,20 +1,22 @@
-const express = require("express");
-const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
+const express = require("express");
 const mongooseconnection = require("./config/mongoose.js");
-const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const app = express();
 
-const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
-app.use(cors({
-  origin: "https://samarthankriya.vercel.app",
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  allowedHeaders: "Content-Type,Authorization",
-  credentials: true
-}));
+const corsOptions = {
+  origin: `${process.env.CLIENT_URL}`,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 
 app.use(express.json());
