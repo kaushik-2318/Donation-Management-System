@@ -2,12 +2,13 @@ import axios from "axios"
 import getJWTId from "./getJWTId"
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
 
 
 export const register = async (formData) => {
   try {
-    console.log(formData)
     const response = await axios.post(`${API_BASE_URL}/auth/register`, formData)
     return response.data
   } catch (error) {
