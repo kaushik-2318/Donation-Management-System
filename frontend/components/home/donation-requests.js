@@ -11,7 +11,7 @@ export default function DonationRequests() {
       requester: "Rahul Sharma",
       description:
         "My daughter Priya needs urgent medical treatment for a rare condition.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "./priya.png",
       raised: 32000,
       goal: 50000,
       daysLeft: 12,
@@ -22,7 +22,7 @@ export default function DonationRequests() {
       requester: "Kumar Family",
       description:
         "Our family home was destroyed in a fire. We need help to rebuild.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/unnamed.png",
       raised: 85000,
       goal: 150000,
       daysLeft: 30,
@@ -33,7 +33,7 @@ export default function DonationRequests() {
       requester: "Ananya Patel",
       description:
         "I'm the first in my family to attend college and need help with tuition.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/1.jpg",
       raised: 48000,
       goal: 100000,
       daysLeft: 45,

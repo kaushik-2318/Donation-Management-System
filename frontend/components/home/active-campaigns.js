@@ -11,7 +11,7 @@ export default function ActiveCampaigns() {
       ngo: "Education for All",
       description:
         "Help us build a school for 500 children in a remote village in Rajasthan.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/Gemini_Generated_Image_cstpu5cstpu5cstp.jpg",
       raised: 450000,
       goal: 750000,
       daysLeft: 23,
@@ -22,7 +22,7 @@ export default function ActiveCampaigns() {
       ngo: "Disaster Response Network",
       description:
         "Providing food, shelter, and medical aid to families affected by recent floods in Bihar.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/images.jpg",
       raised: 285000,
       goal: 500000,
       daysLeft: 15,
@@ -33,7 +33,7 @@ export default function ActiveCampaigns() {
       ngo: "Wildlife Conservation Alliance",
       description:
         "Supporting tiger conservation projects in the Sundarbans National Park.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/tiger2.png",
       raised: 128000,
       goal: 300000,
       daysLeft: 45,
@@ -44,7 +44,7 @@ export default function ActiveCampaigns() {
       ngo: "Healthcare Access Initiative",
       description:
         "Providing essential medical supplies to understaffed rural clinics in Uttar Pradesh.",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/ngoo.webp",
       raised: 189000,
       goal: 250000,
       daysLeft: 10,

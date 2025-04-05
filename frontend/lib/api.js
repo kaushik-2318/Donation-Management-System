@@ -4,7 +4,7 @@ import getJWTId from "./getJWTId"
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
+const API_BASE_URL = "http://localhost:4000"
 
 
 export const register = async (formData) => {
@@ -222,6 +222,26 @@ export const getManageCampaigns = async () => {
     throw new Error(error.response?.data?.message || "Failed to fetch manage campaigns")
   }
 }
+
+export const getTrendingNGOs = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/ngo/trending`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch trending NGOs")
+  }
+}
+
+export const getAllNGOs = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/ngo`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch all NGOs")
+  }
+}
+
+
 
 
 

@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { createCampaign } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 import { Plus, Trash2, Link as LinkIcon, AlertCircle } from "lucide-react"
 
 export default function CreateCampaignPage() {
@@ -129,7 +128,6 @@ export default function CreateCampaignPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">

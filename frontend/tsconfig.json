@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/auth/verify-email/page.js", "app/posts/[id]/edit/page.js", "app/posts/create/page.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/auth/verify-email/page.js", "app/posts/[id]/edit/page.js", "app/posts/create/page.js", "app/ngos/page.js"],
   "exclude": ["node_modules"]
 }

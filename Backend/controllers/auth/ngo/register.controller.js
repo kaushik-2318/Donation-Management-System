@@ -29,17 +29,26 @@ const ngoRegister = async (req, res, next) => {
       return next(new Error("Registration number already in use."));
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedOtp = await bcrypt.hash(otp, 10);
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: normalizedEmail,
+      subject: "Verify Your NGO Registration",
+      html: Verification_Email_Template.replace("{verificationCode}", otp),
+    };
+    
+    await transporter.sendMail(mailOptions);
+
     await NGO.create({
       full_name: full_name,
       email: normalizedEmail,
-      password: hashedPassword,
+      password: password,
       role: "ngo",
       phone_number: phone_number,
       address: address,
@@ -61,14 +70,6 @@ const ngoRegister = async (req, res, next) => {
       monthlyDonations: []
     });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: normalizedEmail,
-      subject: "Verify Your NGO Registration",
-      html: Verification_Email_Template.replace("{verificationCode}", otp),
-    };
-
-    await transporter.sendMail(mailOptions);
     res.status(201).json({ message: "OTP sent! Please verify your email." });
   } catch (error) {
     next(error);

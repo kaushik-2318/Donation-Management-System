@@ -1,11 +1,9 @@
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import BackgroundAnimation from "@/components/background-animation"
 
 export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 border">

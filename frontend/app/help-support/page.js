@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import BackgroundAnimation from "@/components/background-animation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -202,7 +201,6 @@ export default function HelpSupportPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-8">
                 <div className="max-w-4xl mx-auto">

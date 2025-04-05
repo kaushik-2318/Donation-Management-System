@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import BackgroundAnimation from "@/components/background-animation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -291,7 +290,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">

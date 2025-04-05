@@ -156,37 +156,33 @@ const getDataNgo = async (req, res) => {
     }
 };
 
-const getDataDonor = async (req, res) => {
+const getDataDonor = async (req, res, next) => {
     try {
         const donorId = req.user.id;
 
         const donor = await Donor.findById(donorId)
+            .populate("compaignDonations")
+            .populate("individualDonations")
+            .lean();
 
         if (!donor) {
             res.status(404);
             return next(new Error("Donor not found"));
         }
 
+        // Fetch campaigns created by the donor (if applicable)
         const campaigns = await Campaign.find({ donor: donorId })
-            .select("title goal raised status")
+            .select("title goal raised status endDate")
             .sort({ createdAt: -1 })
             .lean();
 
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const currentYear = new Date().getFullYear();
-
-        let donationsData = monthNames.map(month => ({ month, amount: 0 }));
-
-        if (donor.monthlyDonations && donor.monthlyDonations.length > 0) {
-            const thisYearDonations = donor.monthlyDonations.filter(item => item.year === currentYear);
-        }
-
-        const processedCampaigns = campaigns.map((campaign, index) => {
+        const processedCampaigns = campaigns.map((campaign) => {
             const today = new Date();
             const endDate = new Date(campaign.endDate);
-            const daysLeft = campaign.status === "active"
-                ? Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)))
-                : 0;
+            const daysLeft =
+                campaign.status === "active"
+                    ? Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)))
+                    : 0;
 
             return {
                 id: campaign._id,
@@ -194,22 +190,31 @@ const getDataDonor = async (req, res) => {
                 raised: campaign.raised,
                 goal: campaign.goal,
                 status: campaign.status,
-                daysLeft
+                daysLeft,
             };
         });
 
+        // Build donations data by month (dummy data since schema doesn't store monthly data)
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const donationsData = monthNames.map((month) => ({
+            month,
+            amount: 0,
+        }));
+
         const dashboardData = {
             stats: {
-                totalDonations: donor.stats.totalDonations,
-                totalCampaigns: donor.stats.totalCampaigns,
-                activeCampaigns: donor.stats.activeCampaigns,
-                donorsCount: donor.stats.donorsCount
+                totalDonations: donor.totalDonations,
+                totalDonationsAmount: donor.totalDonationsAmount,
+                totalCampaignDonations: donor.totalCampaignDonations,
+                totalCampaignDonationsAmount: donor.totalCampaignDonationsAmount,
+                totalIndividualDonations: donor.totalIndividualDonations,
+                totalIndividualDonationsAmount: donor.totalIndividualDonationsAmount,
             },
             donationsData,
-            campaigns: processedCampaigns
+            campaigns: processedCampaigns,
         };
-        res.status(200).json(dashboardData);
 
+        res.status(200).json(dashboardData);
     } catch (error) {
         console.error("Dashboard error:", error);
         next(error);

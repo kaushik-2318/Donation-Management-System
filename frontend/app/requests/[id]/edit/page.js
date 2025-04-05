@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { getRequestById, updateRequest } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 import { ChevronLeft, AlertTriangle } from "lucide-react"
 import getJWTId from "@/lib/getJWTId"
 
@@ -178,7 +177,6 @@ export default function EditRequestPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col">
-                <BackgroundAnimation />
                 <Header />
                 <main className="flex-grow container mx-auto px-4 py-8">
                     <div className="animate-pulse">
@@ -194,7 +192,6 @@ export default function EditRequestPage() {
     if (!isOwner) {
         return (
             <div className="min-h-screen flex flex-col">
-                <BackgroundAnimation />
                 <Header />
                 <main className="flex-grow container mx-auto px-4 py-8">
                     <div className="text-center py-12">
@@ -213,7 +210,6 @@ export default function EditRequestPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-8">
                 <div className="max-w-3xl mx-auto">

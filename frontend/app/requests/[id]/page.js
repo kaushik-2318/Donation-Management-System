@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getRequestById, deleteRequest } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 import {
   Calendar,
   DollarSign,
@@ -186,7 +185,6 @@ export default function RequestDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <BackgroundAnimation />
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="animate-pulse">
@@ -214,7 +212,6 @@ export default function RequestDetailPage() {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col">
-        <BackgroundAnimation />
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">{error}</div>
@@ -228,7 +225,6 @@ export default function RequestDetailPage() {
   if (!request) {
     return (
       <div className="min-h-screen flex flex-col">
-        <BackgroundAnimation />
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="text-center py-12">
@@ -249,7 +245,6 @@ export default function RequestDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-6">

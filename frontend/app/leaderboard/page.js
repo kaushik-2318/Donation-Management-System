@@ -4,7 +4,6 @@ import { useState } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Trophy, Award, Medal } from "lucide-react"
-import BackgroundAnimation from "@/components/background-animation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LeaderboardPage() {
@@ -119,7 +118,6 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <section className="mb-8">

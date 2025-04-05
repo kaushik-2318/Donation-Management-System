@@ -6,24 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import BackgroundAnimation from "@/components/background-animation"
 import { getAllCampaigns } from "@/lib/api"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 export default function CampaignsPage() {
-
+  const router = useRouter()
   const [campaigns, setCampaigns] = useState([])
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    const userType = localStorage.getItem("userType")
-
-    if (!token || userType !== "ngo") {
-      router.push("/auth/login")
-      return
-    }
-
-    const fetchData = async () => {
+      const fetchData = async () => {
       try {
         const response = await getAllCampaigns();
         setCampaigns(Array.isArray(response.campaigns) ? response.campaigns : []);
@@ -38,7 +30,6 @@ export default function CampaignsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <section className="mb-8">

@@ -27,29 +27,36 @@ export default function DonationHistory({ donations }) {
           </tr>
         </thead>
         <tbody>
-          {donations.map((donation) => (
-            <tr key={donation.id} className="border-b hover:bg-gray-50">
-              <td className="py-3 px-4">
-                <Link href="#" className="text-blue-600 hover:underline">
-                  {donation.campaign}
-                </Link>
-              </td>
-              <td className="py-3 px-4">{donation.ngo}</td>
-              <td className="py-3 px-4">₹{donation.amount.toLocaleString()}</td>
-              <td className="py-3 px-4">{new Date(donation.date).toLocaleDateString()}</td>
-              <td className="py-3 px-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                  onClick={() => handleDownloadReceipt(donation.receiptUrl, donation.campaign)}
-                >
-                  <Download className="h-4 w-4 mr-1" />
-                  Receipt
-                </Button>
-              </td>
-            </tr>
-          ))}
+          {donations?.length > 0 ? (
+
+            donations.map((donation) => (
+              <tr key={donation.id} className="border-b hover:bg-gray-50">
+                <td className="py-3 px-4">
+                  <Link href="#" className="text-blue-600 hover:underline">
+                    {donation.campaign}
+                  </Link>
+                </td>
+                <td className="py-3 px-4">{donation.ngo}</td>
+                <td className="py-3 px-4">₹{donation.amount.toLocaleString()}</td>
+                <td className="py-3 px-4">{new Date(donation.date).toLocaleDateString()}</td>
+                <td className="py-3 px-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                    onClick={() => handleDownloadReceipt(donation.receiptUrl, donation.campaign)}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Receipt
+                  </Button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="py-3 px-4 text-center">No donations found</td>
+            </tr>)
+          }
         </tbody>
       </table>
     </div>

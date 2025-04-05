@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { resendVerificationEmail, verifyOTP, updatePhone } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 import { CheckCircle, AlertCircle, ArrowLeft, RefreshCw, ShieldCheck } from "lucide-react"
 
 // Component that uses useSearchParams
@@ -234,7 +233,6 @@ function VerifyOTPFallback() {
 export default function VerifyOTPPage() {
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <div className="flex-grow flex items-center justify-center p-4">
                 <div className="w-full max-w-md">
                     <Suspense fallback={<VerifyOTPFallback />}>

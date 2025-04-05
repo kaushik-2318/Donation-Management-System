@@ -2,13 +2,11 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import BackgroundAnimation from "@/components/background-animation"
 import { Users, Heart, Globe, Award, BarChart3, Handshake } from "lucide-react"
 
 export default function AboutPage() {
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <Header />
             <main className="flex-grow">
                 {/* Hero Section */}

@@ -20,8 +20,8 @@ const donorRegister = async (req, res, next) => {
       return next(new Error("Email already in use."));
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(confirmPassword, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(confirmPassword, salt);
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedOtp = await bcrypt.hash(otp, 10);
@@ -30,7 +30,7 @@ const donorRegister = async (req, res, next) => {
     await Donor.create({
       full_name:name,
       email: normalizedEmail,
-      password: hashedPassword,
+      password: confirmPassword,
       phone_number:phone,
       address,
       otp: hashedOtp,

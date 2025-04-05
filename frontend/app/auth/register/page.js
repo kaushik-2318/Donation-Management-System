@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { register } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 import { User, Building2, Users } from "lucide-react"
 
 export default function RegisterPage() {
@@ -141,7 +140,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <div className="flex-grow flex items-center justify-center p-4 py-8">
         <div className="w-full max-w-2xl">
           <div className="bg-white rounded-lg shadow-md p-8 border">

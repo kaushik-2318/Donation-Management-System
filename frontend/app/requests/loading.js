@@ -1,12 +1,10 @@
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
-import BackgroundAnimation from "@/components/background-animation"
 
 export default function RequestsLoading() {
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">

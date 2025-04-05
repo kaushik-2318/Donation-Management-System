@@ -66,7 +66,8 @@ const login = async (req, res, next) => {
       return next(new Error("Please verify your email before logging in."));
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = password === user.password;
     if (!isPasswordValid) {
       return next(new Error("Invalid credentials."));
     }

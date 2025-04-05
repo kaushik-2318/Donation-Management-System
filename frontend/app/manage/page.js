@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import BackgroundAnimation from "@/components/background-animation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -112,7 +111,6 @@ export default function ManageRequestsPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col">
-                <BackgroundAnimation />
                 <Header />
                 <main className="flex-grow container mx-auto px-4 py-8">
                     <div className="max-w-6xl mx-auto">
@@ -140,7 +138,6 @@ export default function ManageRequestsPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-8">
                 <div className="max-w-6xl mx-auto">

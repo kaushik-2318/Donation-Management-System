@@ -10,7 +10,6 @@ import { makeDonation } from "@/lib/api"
 import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Users, Clock, Share2, Download, FileText, ExternalLink } from "lucide-react"
-import BackgroundAnimation from "@/components/background-animation"
 import { jsPDF } from "jspdf"
 import { getCampaignById } from "@/lib/api"
 
@@ -134,7 +133,6 @@ export default function CampaignPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         {isLoading ? (

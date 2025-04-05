@@ -148,10 +148,10 @@ export default function DonorDashboard() {
         <>
           <DashboardStats
             stats={[
-              { label: "Total Donated", value: `₹${data.stats.totalDonated.toLocaleString()}` },
-              { label: "Campaigns Supported", value: data.stats.campaignsSupported },
-              { label: "NGOs Supported", value: data.stats.ngosSupported },
-              { label: "Your Rank", value: `#${data.stats.rank}` },
+              { label: "Total Donated", value: `₹${data.stats.totalDonationsAmount.toLocaleString()}` },
+              { label: "Campaign Donations", value: `${data.stats.totalCampaignDonations}` },
+              { label: "Individual Donations", value: `${data.stats.totalIndividualDonations}` },
+              { label: "Total Donations", value: `${data.stats.totalDonations}` },
             ]}
           />
 
@@ -184,7 +184,11 @@ export default function DonorDashboard() {
               </Tabs>
             </div>
 
-            <LeaderboardWidget leaderboard={data.leaderboard[leaderboardPeriod]} />
+            {data.leaderboard && data.leaderboard[leaderboardPeriod] ? (
+              <LeaderboardWidget leaderboard={data.leaderboard[leaderboardPeriod]} />
+            ) : (
+              <div className="text-gray-500 text-sm">Leaderboard data not available.</div>
+            )}
 
             <Link href="/leaderboard">
               <Button variant="outline" className="w-full mt-4 border-blue-600 text-blue-600 hover:bg-blue-50">

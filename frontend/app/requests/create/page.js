@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { createRequest } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 
 export default function CreateRequestPage() {
   const router = useRouter()
@@ -83,7 +82,6 @@ export default function CreateRequestPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">

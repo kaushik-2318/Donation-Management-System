@@ -1,6 +1,13 @@
 import { CheckCircle, XCircle } from "lucide-react"
 
 export default function BadgesWidget({ badges }) {
+  if (!badges || badges.length === 0) {
+    return (
+      <div className="text-center text-gray-500">
+        No badges earned yet.
+      </div>
+    )
+  }
   return (
     <div className="space-y-4">
       {badges.map((badge) => (

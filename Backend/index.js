@@ -9,7 +9,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 
 const corsOptions = {
-  origin: `${process.env.CLIENT_URL}` || "http://localhost:3000",
+  origin: `http://localhost:3000`,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -32,10 +32,8 @@ app.use("/donations", require("./routes/donationRoutes.js"));
 app.use("/requests", require("./routes/requestRoutes.js"));
 app.use("/campaigns", require("./routes/campaignRoutes.js"));
 app.use("/settings", require("./routes/settingsRoutes.js"));
-
-// TODO: Uncomment when routes are implemented
-// app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
-// app.use("/api/notifications", require("./routes/notificationRoutes"));
+app.use("/notifications", require("./routes/notificationRoutes"));
+app.use("/ngo", require("./routes/ngoRoutes"));
 
 app.get("/", (req, res) => {
   res.send("NGO Donation API is Running");

@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getAllRequests } from "@/lib/api"
-import BackgroundAnimation from "@/components/background-animation"
 import { Calendar, Clock, DollarSign, Search, Filter } from "lucide-react"
 import Image from "next/image"
 
@@ -113,7 +112,6 @@ export default function RequestsPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            <BackgroundAnimation />
             <Header />
             <main className="flex-grow container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">

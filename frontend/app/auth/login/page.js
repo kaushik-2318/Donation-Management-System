@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectItem, SelectTrigger, SelectContent } from "@/components/ui/select";
 import { login } from "@/lib/api";
-import BackgroundAnimation from "@/components/background-animation";
 
 function LoginForm() {
   const router = useRouter();
@@ -160,7 +159,6 @@ function LoginFormFallback() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <BackgroundAnimation />
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-md p-8 border">
